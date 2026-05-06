@@ -11,6 +11,26 @@ codelens lsp
 
 Starts a Language Server Protocol (LSP) server on stdin/stdout. Editors and LSP clients connect to the server and receive `publishDiagnostics` notifications when files are opened or saved.
 
+```mermaid
+sequenceDiagram
+    participant E as Editor
+    participant L as codelens-lsp
+    participant N as Engine
+
+    E->>L: initialize
+    L-->>E: capabilities
+    E->>L: textDocument/didOpen
+    L->>N: analyze_path(file)
+    N-->>L: findings
+    L-->>E: publishDiagnostics
+    E->>L: textDocument/didSave
+    L->>N: analyze_path(file)
+    N-->>L: findings
+    L-->>E: publishDiagnostics
+    E->>L: shutdown
+    L-->>E: ok
+```
+
 ## Protocol
 
 The server is hand-rolled (no `tower-lsp` dependency) and implements a minimum-viable LSP surface:

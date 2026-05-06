@@ -15,15 +15,16 @@ codelens-docs/
 ├── docs/                       # MDX content tree
 │   ├── intro.md                # /intro  (Mermaid: finding flow)
 │   ├── architecture.md         # /architecture  (Mermaid: data flow + crate graph)
-│   ├── getting-started/        # /getting-started/*
+│   ├── getting-started/        # /getting-started/*  (first-analysis: Mermaid; reading-output: finding-anatomy.svg)
 │   ├── concepts/               # /concepts/*
-│   │   └── dimensions.md       # (Mermaid: dimensions → rules tree)
-│   ├── cli/                    # /cli/*  (analyze, list, init, show, report, diff, baseline, watch, install-hook, lsp)
-│   ├── configuration/          # /configuration/*
+│   │   ├── dimensions.md       # (Mermaid: dimensions → rules tree)
+│   │   └── analyzers-and-findings.md  # (Mermaid: two-axis analyzer pipeline)
+│   ├── cli/                    # /cli/*  (Mermaid on show / watch / diff / baseline / lsp)
+│   ├── configuration/          # /configuration/*  (baselines-and-fail-on: Mermaid gate flow)
 │   ├── output/                 # /output/*
-│   ├── integrations/           # /integrations/*  (github-action, lsp)
+│   ├── integrations/           # /integrations/*  (github-action: Mermaid CI flow; lsp: Mermaid sequence)
 │   ├── rules/                  # /rules/*  (index + one page per rule_id)
-│   └── extending/              # /extending/*
+│   └── extending/              # /extending/*  (Mermaid on both add-a-language and add-an-analyzer)
 ├── src/
 │   ├── pages/index.tsx         # homepage component (overrides docs at /)
 │   ├── pages/index.module.css  # homepage styles
@@ -31,7 +32,9 @@ codelens-docs/
 ├── static/
 │   └── img/
 │       ├── logo.svg            # aperture/lens mark (primary #1e4d8c, accent #d4a017)
+│       ├── logo-dark.svg       # dark-mode logo variant
 │       ├── codelens-flow.svg   # hero pipeline illustration
+│       ├── finding-anatomy.svg # labelled terminal-finding illustration (reading-output)
 │       └── favicon.ico
 └── build/                      # build output (gitignored)
 ```
@@ -112,8 +115,9 @@ A green `npm run build` is the test signal — there is no separate test runner.
 
 Two conventions apply site-wide:
 
-- **Mermaid in `docs/`** — use a `mermaid` fenced code block whenever a diagram materially aids comprehension of a process or dependency structure. See `docs/architecture.md` (pipeline + crate graph) and `docs/concepts/dimensions.md` (dimension tree).
-- **Inline SVG in `src/pages/`** — React pages use inline `<svg>` elements. Mermaid cannot be rendered inside React components that are not MDX. Reference a `.svg` file from `static/img/` only when the illustration is large and also needed standalone (e.g. `codelens-flow.svg`).
+- **Mermaid in `docs/`** — use a `mermaid` fenced code block whenever a diagram materially aids comprehension of a process or dependency structure. Current pages with Mermaid: `intro.md`, `architecture.md`, `concepts/dimensions.md`, `concepts/analyzers-and-findings.md`, `getting-started/first-analysis.md`, `cli/show.md`, `cli/watch.md`, `cli/diff.md`, `cli/baseline.md`, `cli/lsp.md` (sequenceDiagram), `integrations/github-action.md`, `integrations/lsp.md` (sequenceDiagram), `extending/add-a-language.md`, `extending/add-an-analyzer.md`, `configuration/baselines-and-fail-on.md`.
+- **Inline SVG in `src/pages/`** — React pages use inline `<svg>` elements. Mermaid cannot be rendered inside React components that are not MDX.
+- **Standalone `.svg` in `static/img/`** — referenced via `![alt](/img/file.svg)` in MDX or via `useBaseUrl` in React. Use this when an illustration is non-procedural (annotated/labelled) and Mermaid cannot express it. Current standalone files: `codelens-flow.svg` (homepage hero), `finding-anatomy.svg` (reading-output page).
 
 ---
 

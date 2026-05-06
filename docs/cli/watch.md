@@ -11,6 +11,19 @@ codelens watch [PATH]
 
 Watches `<PATH>` for file-system changes and re-runs `codelens analyze` automatically. Uses the incremental file-hash cache unconditionally, so only changed files are re-analysed. Runs until you press Ctrl-C.
 
+```mermaid
+flowchart LR
+    A[FS event] --> B[debounce\n250 ms]
+    B --> C{hash\nchanged?}
+    C -->|yes| D[re-analyze\nfile]
+    C -->|no| E[skip]
+    D --> F[emit findings\nto stdout]
+    F --> A
+
+    classDef primary fill:#1e4d8c,color:#fff,stroke:#163c6e
+    class D primary
+```
+
 ## Arguments
 
 | Argument | Description                                         |

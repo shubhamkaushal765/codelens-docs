@@ -47,6 +47,20 @@ codelens analyze . --baseline codelens-baseline.json --fail-on high
 
 ## Workflow
 
+```mermaid
+flowchart TD
+    A[baseline save] -->|writes| B[codelens-baseline.json]
+    B --> C[git commit\nbaseline file]
+    C --> D[CI: analyze\n--baseline --fail-on]
+    D -->|new findings| E[exit 1\nblock merge]
+    D -->|no new findings| F[exit 0\npass]
+
+    classDef primary fill:#1e4d8c,color:#fff,stroke:#163c6e
+    classDef accent fill:#d4a017,color:#000,stroke:#b8860b
+    class D primary
+    class E accent
+```
+
 1. Capture a baseline on the current state of the codebase:
 
    ```bash

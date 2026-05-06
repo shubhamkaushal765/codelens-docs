@@ -7,6 +7,29 @@ description: Two CI workflows — gate pull requests on severity with --fail-on,
 
 `codelens analyze` ships two flags for CI integration. Use them together: `--fail-on` gates new findings, `--baseline` ignores old ones.
 
+```mermaid
+flowchart TD
+    classDef primary fill:#1e4d8c,color:#fff,stroke:none
+    classDef accent fill:#d4a017,color:#fff,stroke:none
+
+    RUN[codelens analyze]
+    BL{Baseline\nprovided?}
+    FILTER[Suppress baseline\nfindings]
+    THRESH{Severity meets\nfail-on threshold?}
+    OK[Exit 0\nno gate failure]
+    FAIL[Exit non-zero\nblock merge]
+
+    RUN --> BL
+    BL -- yes --> FILTER --> THRESH
+    BL -- no --> THRESH
+    THRESH -- no --> OK
+    THRESH -- yes --> FAIL
+
+    class RUN accent
+    class FAIL primary
+    class OK primary
+```
+
 ## `--fail-on`
 
 Use `--fail-on` to make CI fail when findings reach a severity threshold. Without it, `codelens analyze` always exits `0` after rendering output — useful for informational runs, but not for blocking merges.

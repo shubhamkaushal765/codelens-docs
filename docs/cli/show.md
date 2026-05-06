@@ -14,6 +14,18 @@ Three subcommands manage the scan-history daemon:
 | `codelens stop`    | Stop the running daemon.                                                 |
 | `codelens status`  | Print daemon state (running / stopped, PID, port).                       |
 
+```mermaid
+flowchart LR
+    A[codelens analyze] -->|auto-save| B[(~/.codelens/\nhistory store)]
+    B --> C[daemon\nport 7878]
+    C --> D[browser\ndashboard]
+
+    classDef accent fill:#d4a017,color:#000,stroke:#b8860b
+    classDef primary fill:#1e4d8c,color:#fff,stroke:#163c6e
+    class C primary
+    class D accent
+```
+
 ## Daemon behaviour
 
 On Unix, `codelens show` performs a POSIX double-fork so the server outlives the terminal session. The daemon listens on a local TCP port (default `7878`). `codelens stop` sends a shutdown signal; `codelens status` reads the PID file.

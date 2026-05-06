@@ -11,6 +11,20 @@ codelens diff <FROM> <TO>
 
 Compares two analysis results and prints which findings are new, resolved, or persisting. Both arguments can be paths to JSON report files or scan IDs stored in `~/.codelens/` history.
 
+```mermaid
+flowchart TD
+    F[FROM report] --> D[diff engine]
+    T[TO report] --> D
+    D --> N[new\nin TO only]
+    D --> R[resolved\nin FROM only]
+    D --> P[persisting\nin both]
+
+    classDef primary fill:#1e4d8c,color:#fff,stroke:#163c6e
+    classDef accent fill:#d4a017,color:#000,stroke:#b8860b
+    class D primary
+    class N accent
+```
+
 ## Arguments
 
 | Argument | Description                                              |

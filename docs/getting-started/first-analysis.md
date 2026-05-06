@@ -5,7 +5,20 @@ description: Walk through running codelens on a project, generating a config, an
 
 # Your first analysis
 
-This page walks through a first run of codelens on a small project. The example assumes a layout like:
+This page walks through a first run of codelens on a small project.
+
+```mermaid
+flowchart TD
+    A[codelens analyze\none-shot run]:::primary --> B[read terminal\noutput]
+    B --> C[explore dashboard\ncodelens show]
+    C --> D[generate config\ncodelens init]
+    D --> E[re-run with\nconfig]:::accent
+
+    classDef primary fill:#1e4d8c,color:#fff,stroke:#163c6e
+    classDef accent fill:#d4a017,color:#1a1a1a,stroke:#a87d10
+```
+
+The example assumes a layout like:
 
 ```text
 my-project/

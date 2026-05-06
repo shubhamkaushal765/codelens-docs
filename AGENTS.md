@@ -49,11 +49,21 @@ The codelens source repo is the canonical source of truth: `/home/user/codelens/
 | ----- | -------- |
 | Logo mark (aperture/lens SVG) | `static/img/logo.svg` |
 | Hero pipeline illustration | `static/img/codelens-flow.svg` |
+| Anatomy of a finding (terminal output) | `static/img/finding-anatomy.svg` |
 | Palette — light primary | `#1e4d8c` (steel blue) |
 | Palette — dark primary | `#5b8def` |
 | Palette — accent | `#d4a017` (amber) |
 
-Mermaid diagrams are used in `docs/architecture.md`, `docs/concepts/dimensions.md`, and `docs/intro.md`. The homepage (`src/pages/index.tsx`) uses inline SVG for the pipeline visual, not Mermaid, because it is a React component.
+Mermaid diagrams are used across the docs to illustrate flows where prose alone is hard to parse:
+
+- `docs/intro.md`, `docs/architecture.md`, `docs/concepts/dimensions.md`, `docs/concepts/analyzers-and-findings.md`
+- `docs/getting-started/first-analysis.md`
+- `docs/cli/show.md`, `docs/cli/watch.md`, `docs/cli/diff.md`, `docs/cli/baseline.md`, `docs/cli/lsp.md`
+- `docs/integrations/github-action.md`, `docs/integrations/lsp.md`
+- `docs/extending/add-a-language.md`, `docs/extending/add-an-analyzer.md`
+- `docs/configuration/baselines-and-fail-on.md`
+
+`docs/getting-started/reading-output.md` uses the standalone `static/img/finding-anatomy.svg` illustration. The homepage (`src/pages/index.tsx`) uses inline SVG for the pipeline visual, not Mermaid, because it is a React component.
 
 ---
 

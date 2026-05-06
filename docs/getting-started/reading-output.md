@@ -9,6 +9,8 @@ The default terminal format groups findings by dimension and severity, then prin
 
 ## Anatomy of a finding
 
+![Anatomy of a finding](/img/finding-anatomy.svg)
+
 Each finding occupies two short lines:
 
 ```text

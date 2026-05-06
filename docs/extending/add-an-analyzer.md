@@ -7,6 +7,31 @@ description: Add a new cross-language or language-specific analyzer to codelens 
 
 Adding an analyzer never requires changes to a language frontend. There are two cases: a *cross-language* rule that reads only `SemanticIndex` and lives in `codelens-analyzers`, and a *language-specific* rule that needs the native AST and lives inside its language crate.
 
+```mermaid
+flowchart LR
+    classDef primary fill:#1e4d8c,color:#fff,stroke:none
+    classDef accent fill:#d4a017,color:#fff,stroke:none
+
+    subgraph cross["Cross-language (all languages)"]
+        SI[SemanticIndex]
+        CA[impl Analyzer\nin codelens-analyzers]
+        SI --> CA
+    end
+
+    subgraph lang["Language-specific (one language)"]
+        NA[NativeAst]
+        LA[impl Analyzer\nin codelens-lang-X]
+        NA --> LA
+    end
+
+    CA --> FI[Finding]
+    LA --> FI
+
+    class SI accent
+    class NA accent
+    class FI primary
+```
+
 ## Cross-language rule
 
 A cross-language rule lives in `codelens-analyzers` and operates on `SemanticIndex` only.

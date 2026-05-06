@@ -9,6 +9,22 @@ description: Configure editors to use the codelens Language Server for in-editor
 
 ## How it works
 
+```mermaid
+sequenceDiagram
+    participant E as Editor
+    participant L as codelens-lsp
+    participant C as codelens-core
+
+    E->>L: initialize
+    L-->>E: InitializeResult
+    E->>L: textDocument/didOpen (or didSave)
+    L->>C: Engine::analyze_path
+    C-->>L: Vec<Finding>
+    L-->>E: textDocument/publishDiagnostics
+    Note over E: Inline annotations shown
+    E->>L: shutdown / exit
+```
+
 When a file is opened or saved, the LSP server runs `Engine::analyze_path` against that file and publishes diagnostics via `textDocument/publishDiagnostics`. Findings appear as inline annotations in your editor.
 
 ## Severity mapping

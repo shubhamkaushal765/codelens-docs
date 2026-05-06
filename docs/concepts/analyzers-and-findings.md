@@ -16,6 +16,18 @@ Analyzers come in two flavours:
 
 The dependency-graph rule that keeps these two layers from leaking into each other is described in [Architecture](/architecture).
 
+```mermaid
+flowchart LR
+    SRC[source files] --> FE[language frontend\nparse]
+    FE -->|SemanticIndex| CA[cross-language\nanalyzers]:::primary
+    FE -->|NativeAst| LA[language-specific\nanalyzers]:::primary
+    CA --> FND[findings]:::accent
+    LA --> FND
+
+    classDef primary fill:#1e4d8c,color:#fff,stroke:#163c6e
+    classDef accent fill:#d4a017,color:#1a1a1a,stroke:#a87d10
+```
+
 To write a new analyzer, see [Add an analyzer](/extending/add-an-analyzer).
 
 ## Findings

@@ -9,6 +9,26 @@ A language frontend is a `codelens-lang-X` crate that implements `Language::pars
 
 The two-axis invariant in plain terms: adding a language should not require any change to existing analyzer crates, and adding an analyzer should not require any change to existing language crates. The boundary is enforced at the Cargo dependency-graph level — language crates and `codelens-analyzers` never list each other as dependencies. The CLI is the only crate that depends on every other crate.
 
+```mermaid
+flowchart TD
+    classDef primary fill:#1e4d8c,color:#fff,stroke:none
+    classDef accent fill:#d4a017,color:#fff,stroke:none
+
+    CR[Create crate]
+    LP[impl Language::parse]
+    SI[Build SemanticIndex]
+    CM[Compute ComplexityMetrics]
+    NA[impl NativeAst]
+    RE[pub fn register]
+    RG[Add to build_registry]
+    AX[Cross-language analyzers\nautomatically support new language]
+
+    CR --> LP --> SI --> CM --> NA --> RE --> RG --> AX
+
+    class CR accent
+    class AX primary
+```
+
 ## Step 1 — Create the crate with workspace inheritance
 
 Add a new `crates/codelens-lang-go/` directory with a `Cargo.toml` that inherits the workspace edition and Rust settings:

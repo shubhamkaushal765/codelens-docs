@@ -38,6 +38,24 @@ jobs:
 
 ## What it does
 
+```mermaid
+flowchart LR
+    classDef primary fill:#1e4d8c,color:#fff,stroke:none
+    classDef accent fill:#d4a017,color:#fff,stroke:none
+
+    PR[Pull request / push]
+    IN[Install codelens]
+    AN[codelens analyze]
+    SA[SARIF output]
+    UP[Upload to code scanning]
+    GH[GitHub Security tab]
+
+    PR --> IN --> AN --> SA --> UP --> GH
+
+    class PR accent
+    class GH primary
+```
+
 1. Installs the stable Rust toolchain via [`dtolnay/rust-toolchain@stable`](https://github.com/dtolnay/rust-toolchain).
 2. Runs `cargo install --locked codelens` (or a pinned version).
 3. Runs `codelens analyze <path> --format <format> --fail-on <fail-on> --output codelens-results.sarif` with `continue-on-error: true` so the upload step always runs.
