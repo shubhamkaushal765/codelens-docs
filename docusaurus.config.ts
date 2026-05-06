@@ -15,6 +15,10 @@ const config: Config = {
     v4: true, // Improve compatibility with the upcoming Docusaurus v4
   },
 
+  markdown: {
+    mermaid: true,
+  },
+
   // Set the production url of your site here
   url: 'https://shubhamkaushal765.github.io',
   // Set the /<baseUrl>/ pathname under which your site is served
@@ -37,6 +41,8 @@ const config: Config = {
     defaultLocale: 'en',
     locales: ['en'],
   },
+
+  themes: ['@docusaurus/theme-mermaid'],
 
   presets: [
     [
@@ -87,6 +93,27 @@ const config: Config = {
       theme: prismThemes.github,
       darkTheme: prismThemes.dracula,
       additionalLanguages: ['rust', 'toml', 'bash', 'json', 'python'],
+    },
+    mermaid: {
+      theme: {
+        light: 'default',
+        dark: 'dark',
+      },
+      options: {
+        themeVariables: {
+          primaryColor: '#1e4d8c',
+          primaryTextColor: '#ffffff',
+          primaryBorderColor: '#163c6e',
+          lineColor: '#4b5a72',
+          secondaryColor: '#f0f4f9',
+          tertiaryColor: '#eef1f6',
+          edgeLabelBackground: '#ffffff',
+          clusterBkg: '#eef1f6',
+          titleColor: '#1a2332',
+          nodeBorder: '#1e4d8c',
+          mainBkg: '#f0f4f9',
+        },
+      },
     },
   } satisfies Preset.ThemeConfig,
 };

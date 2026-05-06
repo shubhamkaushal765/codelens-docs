@@ -13,6 +13,13 @@ Tools like clippy, eslint, and pylint return a flat list of warnings. A reviewer
 
 See [Dimensions](/concepts/dimensions) for the full list and [Severity and scoring](/concepts/severity-and-scoring) for the formula.
 
+```mermaid
+flowchart LR
+    CODE[source code] --> AZ[analyzer]
+    AZ --> FND["finding\n(rule_id · severity · dimension)"]
+    FND --> SC[dimension score\n0–100]
+```
+
 ## Languages supported
 
 | Language                | Status | Notes                                           |

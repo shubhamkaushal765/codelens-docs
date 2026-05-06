@@ -24,3 +24,36 @@ Each dimension produces an independent 0–100 score. There is no single composi
 All 25 rules across all five dimensions ship and run by default. Browse the full list under [Rules reference](/rules/).
 
 For the score formula, see [Severity and scoring](/concepts/severity-and-scoring).
+
+## Dimensions and rules (overview)
+
+```mermaid
+flowchart TD
+    CL[codelens]
+
+    CL --> MAINT[Maintainability]
+    CL --> SEC[Security]
+    CL --> CPLX[Complexity]
+    CL --> DOC[Documentation]
+    CL --> TEST[Test smell]
+
+    MAINT --> M1[MAINT001-cyclomatic]
+    MAINT --> M2[MAINT003-fn-length]
+    MAINT --> M3[MAINT004-file-length]
+    MAINT --> M4[MAINT005-deep-nesting]
+
+    SEC --> S1[SEC001-hardcoded-secret]
+    SEC --> S2[SEC002-eval-sink]
+    SEC --> S3[SEC101-rust-unsafe]
+
+    CPLX --> C1[CPLX001-fan-out]
+    CPLX --> C2[CPLX002-cyclic-deps]
+    CPLX --> C3[CPLX003-duplicate-code]
+
+    DOC --> D1[DOC001-public-api-undoc]
+    DOC --> D2[DOC002-todo-fixme]
+
+    TEST --> T1[TEST001-test-ratio]
+    TEST --> T2[TEST002-no-asserts]
+    TEST --> T3[TEST003-skipped]
+```

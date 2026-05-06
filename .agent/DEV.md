@@ -97,6 +97,19 @@ When a new analyzer ships in `/home/user/codelens/`:
 4. Add the id to the `Rules reference` category in [sidebars.ts](../sidebars.ts).
 5. `npm run build`.
 
+### Add a Mermaid diagram
+
+Add a `mermaid` fenced block anywhere in an MDX file:
+
+````markdown
+```mermaid
+flowchart LR
+    A[Source] --> B[Parse] --> C[Findings]
+```
+````
+
+`@docusaurus/theme-mermaid` and `markdown.mermaid: true` are already configured. Run `npm run build` to validate Mermaid syntax — a parse error fails the build.
+
 ### Edit the homepage
 
 Edit [`src/pages/index.tsx`](../src/pages/index.tsx). The homepage is a React component, not MDX.

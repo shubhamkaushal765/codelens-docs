@@ -103,3 +103,37 @@ configuration notes, and fix guidance.
 - `main` is the default and deployable branch.
 - Feature work in topic branches: `docs/<topic>` or `feat/<feature>`.
 - PRs target `main`; squash or rebase merges preferred.
+
+---
+
+## Diagrams & SVG
+
+### Placement
+
+| Context | Method |
+| ------- | ------ |
+| MDX docs (`docs/`) | Mermaid fenced block (` ```mermaid `) |
+| React pages (`src/pages/`) | Inline `<svg>` element |
+| Large standalone illustration | `.svg` file in `static/img/`, referenced via `<img>` or `useBaseUrl` |
+
+### When to add a Mermaid diagram
+
+Add a diagram only when it materially aids comprehension that prose alone cannot convey (e.g. a multi-step pipeline, a dependency graph). Do not add one per page by default.
+
+### Palette tokens to use in diagrams
+
+| Purpose | Value |
+| ------- | ----- |
+| Primary / node fill | `#1e4d8c` (light) / `#5b8def` (dark) |
+| Accent / focal element | `#d4a017` |
+| Edge / line color | `#4b5a72` |
+| Background surface | `#f0f4f9` |
+
+### SVG conventions
+
+- Square logo viewBox: `0 0 64 64`.
+- Illustrations: viewBox up to `0 0 800 400`.
+- Use `currentColor` where fills should follow the theme.
+- One descriptive comment at the top of each SVG file.
+- No raster images, no text elements in decorative SVGs.
+- Use `fill` attributes matching the palette rather than CSS classes for portability.

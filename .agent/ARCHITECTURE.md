@@ -8,15 +8,16 @@ Living code map of the codelens-docs site.
 
 ```
 codelens-docs/
-├── docusaurus.config.ts        # site config (URL, theme, plugins)
+├── docusaurus.config.ts        # site config (URL, theme, plugins, Mermaid theme)
 ├── sidebars.ts                 # IA — explicit sidebar tree
 ├── package.json                # deps + scripts
 ├── tsconfig.json               # TS config (extends @docusaurus/tsconfig)
 ├── docs/                       # MDX content tree
-│   ├── intro.md                # /intro
-│   ├── architecture.md         # /architecture
+│   ├── intro.md                # /intro  (Mermaid: finding flow)
+│   ├── architecture.md         # /architecture  (Mermaid: data flow + crate graph)
 │   ├── getting-started/        # /getting-started/*
 │   ├── concepts/               # /concepts/*
+│   │   └── dimensions.md       # (Mermaid: dimensions → rules tree)
 │   ├── cli/                    # /cli/*  (analyze, list, init, show, report, diff, baseline, watch, install-hook, lsp)
 │   ├── configuration/          # /configuration/*
 │   ├── output/                 # /output/*
@@ -26,8 +27,12 @@ codelens-docs/
 ├── src/
 │   ├── pages/index.tsx         # homepage component (overrides docs at /)
 │   ├── pages/index.module.css  # homepage styles
-│   └── css/custom.css          # global theme overrides
-├── static/                     # static assets (favicon, images)
+│   └── css/custom.css          # global theme overrides (steel-blue palette)
+├── static/
+│   └── img/
+│       ├── logo.svg            # aperture/lens mark (primary #1e4d8c, accent #d4a017)
+│       ├── codelens-flow.svg   # hero pipeline illustration
+│       └── favicon.ico
 └── build/                      # build output (gitignored)
 ```
 
@@ -92,6 +97,23 @@ A green `npm run build` is the test signal — there is no separate test runner.
 `themeConfig.colorMode.respectPrefersColorScheme = true` follows the OS dark-mode setting on first load.
 
 `themeConfig.prism.additionalLanguages` registers `rust`, `toml`, `bash`, `json`, `python` so code fences highlight correctly. Default Prism does not ship Rust or TOML.
+
+**Palette**
+
+| Variable | Light | Dark |
+| -------- | ----- | ---- |
+| `--ifm-color-primary` | `#1e4d8c` | `#5b8def` |
+| `--codelens-accent` | `#d4a017` | (same) |
+| Background | white / `#f4f6f9` | `#111827` / `#1a2436` |
+
+**Mermaid** is configured in `themeConfig.mermaid` with `themeVariables` that echo the steel-blue palette. The `markdown.mermaid: true` flag enables Mermaid fences in MDX. `@docusaurus/theme-mermaid` is the only added dependency.
+
+## Diagrams
+
+Two conventions apply site-wide:
+
+- **Mermaid in `docs/`** — use a `mermaid` fenced code block whenever a diagram materially aids comprehension of a process or dependency structure. See `docs/architecture.md` (pipeline + crate graph) and `docs/concepts/dimensions.md` (dimension tree).
+- **Inline SVG in `src/pages/`** — React pages use inline `<svg>` elements. Mermaid cannot be rendered inside React components that are not MDX. Reference a `.svg` file from `static/img/` only when the illustration is large and also needed standalone (e.g. `codelens-flow.svg`).
 
 ---
 

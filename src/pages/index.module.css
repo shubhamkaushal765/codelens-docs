@@ -1,27 +1,84 @@
-/**
- * CSS files with the .module.css suffix will be treated as CSS modules
- * and scoped locally.
- */
+/* Homepage CSS module — steel-blue palette, restrained layout */
 
-.heroBanner {
-  padding: 4rem 0;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
+/* ── Hero ── */
+.hero {
+  background: linear-gradient(160deg, #0f2744 0%, #1e4d8c 60%, #163c6e 100%);
+  padding: 4rem 0 3.5rem;
+  color: #fff;
 }
 
-@media screen and (max-width: 996px) {
-  .heroBanner {
-    padding: 2rem;
-  }
-}
-
-.buttons {
+.heroInner {
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 3rem;
 }
 
+.heroCopy {
+  flex: 1 1 380px;
+  min-width: 0;
+}
+
+.heroTitle {
+  font-size: 3rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #fff;
+  margin-bottom: 0.75rem;
+  line-height: 1.1;
+}
+
+.heroTagline {
+  font-size: 1.15rem;
+  color: #93b8e0;
+  margin-bottom: 2rem;
+  line-height: 1.55;
+}
+
+.heroButtons {
+  display: flex;
+  gap: 0.875rem;
+  flex-wrap: wrap;
+}
+
+.btnPrimary {
+  background: #d4a017;
+  border: 1px solid #d4a017;
+  color: #111827;
+  font-weight: 600;
+}
+
+.btnPrimary:hover {
+  background: #c0911a;
+  border-color: #c0911a;
+  color: #111827;
+  text-decoration: none;
+}
+
+.btnOutline {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  color: #fff;
+  font-weight: 500;
+}
+
+.btnOutline:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.7);
+  color: #fff;
+  text-decoration: none;
+}
+
+.heroVisual {
+  flex: 1 1 340px;
+  min-width: 0;
+}
+
+.heroDiagram {
+  display: block;
+  max-width: 100%;
+}
+
+/* ── Sections ── */
 .section {
   padding: 4rem 0;
 }
@@ -30,22 +87,36 @@
   background: var(--ifm-color-emphasis-100);
 }
 
+.sectionHeading {
+  margin-bottom: 0.5rem;
+}
+
+.sectionLead {
+  color: var(--ifm-color-emphasis-700);
+  font-size: 1rem;
+  margin-bottom: 2rem;
+  max-width: 640px;
+}
+
+/* ── Dimension cards ── */
 .cardGrid {
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
-  margin-top: 1.5rem;
+  margin-top: 0.5rem;
 }
 
 .card {
-  flex: 1 1 220px;
-  min-width: 220px;
-  padding: 1.25rem;
+  flex: 1 1 200px;
+  min-width: 200px;
+  padding: 1.25rem 1.25rem 1.25rem 1.5rem;
   border: 1px solid var(--ifm-color-emphasis-200);
   border-radius: 8px;
   background: var(--ifm-background-color);
   color: inherit;
   text-decoration: none;
+  position: relative;
+  overflow: hidden;
   transition: border-color 0.15s ease, transform 0.15s ease;
 }
 
@@ -55,22 +126,144 @@
   transform: translateY(-2px);
 }
 
-.cardTitle {
+/* Left-side colored stripe */
+.cardStripe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  border-radius: 8px 0 0 8px;
+}
+
+.cardIcon {
+  display: inline-flex;
   margin-bottom: 0.5rem;
-  font-size: 1.1rem;
+}
+
+.cardTitle {
+  margin-bottom: 0.4rem;
+  font-size: 1rem;
+  font-weight: 700;
 }
 
 .cardDesc {
   margin: 0;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   color: var(--ifm-color-emphasis-700);
+  line-height: 1.5;
+}
+
+/* ── Pipeline at a glance ── */
+.pipelineWrap {
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+}
+
+.pipelineSvg {
+  display: block;
+  max-width: 640px;
+  min-width: 320px;
+  width: 100%;
+  height: auto;
+}
+
+/* ── Two-axis extensibility ── */
+.extGrid {
+  display: flex;
+  gap: 3rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.extDiagram {
+  flex: 0 0 300px;
+}
+
+.extSvg {
+  display: block;
+  width: 100%;
+  max-width: 300px;
+  height: auto;
+}
+
+.extCopy {
+  flex: 1 1 280px;
+  min-width: 0;
+}
+
+.extCopy p {
+  color: var(--ifm-color-emphasis-700);
+  line-height: 1.7;
+  margin-bottom: 1rem;
+}
+
+/* ── Quick start ── */
+.quickStartCard {
+  border: 1px solid var(--ifm-color-emphasis-200);
+  border-radius: 8px;
+  background: var(--ifm-background-color);
+  padding: 1.5rem;
+  max-width: 640px;
 }
 
 .code {
   background: var(--ifm-pre-background);
+  border: 1px solid var(--ifm-color-emphasis-200);
+  border-radius: 6px;
   padding: 1rem;
-  border-radius: 8px;
   overflow-x: auto;
   font-size: 0.9rem;
-  line-height: 1.5;
+  line-height: 1.6;
+  margin: 0 0 1rem 0;
+}
+
+.quickStartNote {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--ifm-color-emphasis-700);
+}
+
+/* ── Mobile responsive ── */
+@media screen and (max-width: 768px) {
+  .heroInner {
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .heroTitle {
+    font-size: 2.2rem;
+  }
+
+  .heroVisual {
+    width: 100%;
+  }
+
+  .extGrid {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .extDiagram {
+    flex: 0 0 auto;
+    width: 100%;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .hero {
+    padding: 2.5rem 0 2rem;
+  }
+
+  .heroTitle {
+    font-size: 1.9rem;
+  }
+
+  .section {
+    padding: 2.5rem 0;
+  }
+
+  .cardGrid {
+    flex-direction: column;
+  }
 }

@@ -44,41 +44,52 @@ This is enforced at the **Cargo dependency-graph level**, not by visibility modi
 
 The practical consequence: cross-language analyzers in `codelens-analyzers` consume **only** `SemanticIndex` fields. They never call `ParsedFile::native<T>()`. A language-specific analyzer (e.g. `SEC101-rust-unsafe`) lives inside `codelens-lang-rust` alongside the frontend and uses a typed downcast to reach the pre-extracted Rust AST data.
 
+## Two-axis extensibility (visual)
+
+```mermaid
+flowchart LR
+    CLI[codelens-cli]
+
+    CLI --> LR[codelens-lang-rust]
+    CLI --> LP[codelens-lang-python]
+    CLI --> LJ[codelens-lang-js]
+    CLI --> AN[codelens-analyzers]
+    CLI --> RPT[codelens-report]
+    CLI --> SHW[codelens-show]
+    CLI --> REG[codelens-registry]
+    CLI --> LSP[codelens-lsp]
+
+    LR  --> CORE
+    LP  --> CORE
+    LJ  --> CORE
+    AN  --> CORE
+    RPT --> CORE
+    SHW --> CORE
+    REG --> CORE
+    LSP --> CORE
+
+    CORE[codelens-core]:::core
+
+    classDef core fill:#1e4d8c,color:#fff,stroke:#163c6e
+```
+
+`codelens-lang-*` and `codelens-analyzers` share the same level — neither imports the other.
+
 ## Data flow
 
 The pipeline for a single `codelens analyze <path>` run:
 
-```text
-                  ┌──────────────────────────────────────┐
-  source files ──►│  walk_files (lexicographic order)     │
-                  └────────────────┬─────────────────────┘
-                                   │ Vec<PathBuf>
-                  ┌────────────────▼─────────────────────┐
-                  │  Language::parse  (rayon par_iter)    │
-                  │  ┌──────────────────────────────────┐ │
-                  │  │  SemanticIndex  (cross-lang data) │ │
-                  │  │  NativeAst      (lang-specific)   │ │
-                  │  └──────────────────────────────────┘ │
-                  │  ──► ParsedFile                        │
-                  └────────────────┬─────────────────────┘
-                                   │ Vec<ParsedFile>
-                  ┌────────────────▼─────────────────────┐
-                  │  Analyzer::analyze_file (rayon)       │
-                  │  + Analyzer::analyze_project (seq)    │
-                  └────────────────┬─────────────────────┘
-                                   │ Vec<Finding>
-                  ┌────────────────▼─────────────────────┐
-                  │  sort_findings  (file, span, rule_id) │
-                  └────────────────┬─────────────────────┘
-                                   │
-                  ┌────────────────▼─────────────────────┐
-                  │  aggregate_dimension_score            │
-                  └────────────────┬─────────────────────┘
-                                   │ Report
-                  ┌────────────────▼─────────────────────┐
-                  │  render (JSON / terminal / markdown)  │
-                  └────────────────┬─────────────────────┘
-                                   │ String → stdout / file
+```mermaid
+flowchart TD
+    A[source files] --> B[walk_files\nlexicographic order]
+    B -->|Vec&lt;PathBuf&gt;| C[Language::parse\nrayon par_iter]
+    C -->|SemanticIndex + NativeAst| D[ParsedFile]
+    D -->|Vec&lt;ParsedFile&gt;| E[analyze_file\nrayon par_iter]
+    E --> F[analyze_project\nsequential]
+    F -->|Vec&lt;Finding&gt;| G[sort_findings\nfile · span · rule_id]
+    G --> H[aggregate_dimension_score]
+    H -->|Report| I[render\nJSON / terminal / markdown]
+    I -->|String| J[stdout / file]
 ```
 
 ## SemanticIndex

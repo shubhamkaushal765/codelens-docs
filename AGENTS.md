@@ -36,9 +36,24 @@ The codelens source repo is the canonical source of truth: `/home/user/codelens/
 | Framework         | Docusaurus 3.x (classic preset, TypeScript config)              |
 | Content           | MDX (Markdown + JSX), with Docusaurus admonitions               |
 | Code highlighting | Prism, with `rust`, `toml`, `bash`, `json`, `python`            |
+| Diagrams          | `@docusaurus/theme-mermaid` 3.10.1 (Mermaid in MDX; inline SVG in React pages) |
 | Routing           | docs at site root (`routeBasePath: '/'`)                        |
 | Deployment        | GitHub Pages (`shubhamkaushal765.github.io/codelens-docs/`)     |
 | Node              | v20+ (CI uses latest stable)                                    |
+
+---
+
+## Visual identity & diagrams
+
+| Asset | Location |
+| ----- | -------- |
+| Logo mark (aperture/lens SVG) | `static/img/logo.svg` |
+| Hero pipeline illustration | `static/img/codelens-flow.svg` |
+| Palette — light primary | `#1e4d8c` (steel blue) |
+| Palette — dark primary | `#5b8def` |
+| Palette — accent | `#d4a017` (amber) |
+
+Mermaid diagrams are used in `docs/architecture.md`, `docs/concepts/dimensions.md`, and `docs/intro.md`. The homepage (`src/pages/index.tsx`) uses inline SVG for the pipeline visual, not Mermaid, because it is a React component.
 
 ---
 

@@ -165,6 +165,25 @@ The `CWE` and `OWASP` rows in the property table are optional — include only w
 
 ---
 
+## Diagrams
+
+Add a Mermaid diagram to a doc page only when it materially aids comprehension — a multi-step pipeline, a dependency graph, or a branching taxonomy that would be hard to parse as prose.
+
+Rules:
+- One diagram per page is usually the right amount. Do not add one per section.
+- Keep node labels concise (≤ 4 words); the surrounding prose explains the detail.
+- Choose `flowchart TD` for top-down processes and `flowchart LR` for left-to-right dependency graphs.
+- Mermaid in MDX requires `@docusaurus/theme-mermaid` and `markdown.mermaid: true` in `docusaurus.config.ts` — both are already configured.
+
+```markdown
+```mermaid
+flowchart LR
+    A[Source] --> B[Parse] --> C[Findings]
+```
+```
+
+---
+
 ## What NOT to write
 
 - Internal implementation details — link to the crate's `cargo doc` instead.
