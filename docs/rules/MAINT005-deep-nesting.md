@@ -179,8 +179,8 @@ def moderate_nesting(x):
 
 ## Implementation
 
-- Source: [`crates/codelens-analyzers/src/deep_nesting.rs`](https://github.com/shubhamkaushal/codelens/blob/main/crates/codelens-analyzers/src/deep_nesting.rs)
-- Nesting computation: [`crates/codelens-lang-rust/src/complexity.rs`](https://github.com/shubhamkaushal/codelens/blob/main/crates/codelens-lang-rust/src/complexity.rs), [`crates/codelens-lang-python/src/complexity.rs`](https://github.com/shubhamkaushal/codelens/blob/main/crates/codelens-lang-python/src/complexity.rs)
+- Source: [`crates/codelens-analyzers/src/deep_nesting.rs`](https://github.com/shubhamkaushal765/codelens/blob/main/crates/codelens-analyzers/src/deep_nesting.rs)
+- Nesting computation: [`crates/codelens-lang-rust/src/complexity.rs`](https://github.com/shubhamkaushal765/codelens/blob/main/crates/codelens-lang-rust/src/complexity.rs), [`crates/codelens-lang-python/src/complexity.rs`](https://github.com/shubhamkaushal765/codelens/blob/main/crates/codelens-lang-python/src/complexity.rs)
 
 ## References
 

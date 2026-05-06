@@ -73,7 +73,7 @@ pub fn safe_copy(dst: &mut [u8], src: &[u8]) {
 
 ## Implementation
 
-- Source: [`crates/codelens-lang-rust/src/analyzers/unsafe_block.rs`](https://github.com/shubhamkaushal/codelens/blob/main/crates/codelens-lang-rust/src/analyzers/unsafe_block.rs)
+- Source: [`crates/codelens-lang-rust/src/analyzers/unsafe_block.rs`](https://github.com/shubhamkaushal765/codelens/blob/main/crates/codelens-lang-rust/src/analyzers/unsafe_block.rs)
 
 ## References
 

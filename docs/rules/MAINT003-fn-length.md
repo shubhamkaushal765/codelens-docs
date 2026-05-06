@@ -125,8 +125,8 @@ def short_processing(x: int) -> int:
 
 ## Implementation
 
-- Source: [`crates/codelens-analyzers/src/fn_length.rs`](https://github.com/shubhamkaushal/codelens/blob/main/crates/codelens-analyzers/src/fn_length.rs)
-- Test fixtures: [`fixtures/rust/long_fn/`](https://github.com/shubhamkaushal/codelens/blob/main/fixtures/rust/long_fn/) and [`fixtures/python/long_fn/`](https://github.com/shubhamkaushal/codelens/blob/main/fixtures/python/long_fn/)
+- Source: [`crates/codelens-analyzers/src/fn_length.rs`](https://github.com/shubhamkaushal765/codelens/blob/main/crates/codelens-analyzers/src/fn_length.rs)
+- Test fixtures: [`fixtures/rust/long_fn/`](https://github.com/shubhamkaushal765/codelens/blob/main/fixtures/rust/long_fn/) and [`fixtures/python/long_fn/`](https://github.com/shubhamkaushal765/codelens/blob/main/fixtures/python/long_fn/)
 
 ## References
 

@@ -160,8 +160,8 @@ def simple_sum(a, b, c):
 
 ## Implementation
 
-- Source: [`crates/codelens-analyzers/src/cyclomatic.rs`](https://github.com/shubhamkaushal/codelens/blob/main/crates/codelens-analyzers/src/cyclomatic.rs)
-- Complexity computation: [`crates/codelens-lang-rust/src/complexity.rs`](https://github.com/shubhamkaushal/codelens/blob/main/crates/codelens-lang-rust/src/complexity.rs), [`crates/codelens-lang-python/src/complexity.rs`](https://github.com/shubhamkaushal/codelens/blob/main/crates/codelens-lang-python/src/complexity.rs)
+- Source: [`crates/codelens-analyzers/src/cyclomatic.rs`](https://github.com/shubhamkaushal765/codelens/blob/main/crates/codelens-analyzers/src/cyclomatic.rs)
+- Complexity computation: [`crates/codelens-lang-rust/src/complexity.rs`](https://github.com/shubhamkaushal765/codelens/blob/main/crates/codelens-lang-rust/src/complexity.rs), [`crates/codelens-lang-python/src/complexity.rs`](https://github.com/shubhamkaushal765/codelens/blob/main/crates/codelens-lang-python/src/complexity.rs)
 
 ## References
 

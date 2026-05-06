@@ -87,7 +87,7 @@ def process_data(value):
 
 ## Implementation
 
-- Source (Python): [`crates/codelens-lang-python/src/analyzers/eval_sink.rs`](https://github.com/shubhamkaushal/codelens/blob/main/crates/codelens-lang-python/src/analyzers/eval_sink.rs)
+- Source (Python): [`crates/codelens-lang-python/src/analyzers/eval_sink.rs`](https://github.com/shubhamkaushal765/codelens/blob/main/crates/codelens-lang-python/src/analyzers/eval_sink.rs)
 
 ## References
 

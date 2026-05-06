@@ -131,8 +131,8 @@ class DataCleaner:
 
 ## Implementation
 
-- Source: [`crates/codelens-analyzers/src/file_length.rs`](https://github.com/shubhamkaushal/codelens/blob/main/crates/codelens-analyzers/src/file_length.rs)
-- Line counting: [`crates/codelens-core/src/source.rs`](https://github.com/shubhamkaushal/codelens/blob/main/crates/codelens-core/src/source.rs) — `SourceFile::line_count()`
+- Source: [`crates/codelens-analyzers/src/file_length.rs`](https://github.com/shubhamkaushal765/codelens/blob/main/crates/codelens-analyzers/src/file_length.rs)
+- Line counting: [`crates/codelens-core/src/source.rs`](https://github.com/shubhamkaushal765/codelens/blob/main/crates/codelens-core/src/source.rs) — `SourceFile::line_count()`
 
 ## References
 

@@ -86,8 +86,8 @@ def complete():
 
 ## Implementation
 
-- Source: [`crates/codelens-analyzers/src/todo_fixme.rs`](https://github.com/shubhamkaushal/codelens/blob/main/crates/codelens-analyzers/src/todo_fixme.rs)
-- Comment extraction: [`crates/codelens-lang-rust/src/index.rs`](https://github.com/shubhamkaushal/codelens/blob/main/crates/codelens-lang-rust/src/index.rs), [`crates/codelens-lang-python/src/index.rs`](https://github.com/shubhamkaushal/codelens/blob/main/crates/codelens-lang-python/src/index.rs)
+- Source: [`crates/codelens-analyzers/src/todo_fixme.rs`](https://github.com/shubhamkaushal765/codelens/blob/main/crates/codelens-analyzers/src/todo_fixme.rs)
+- Comment extraction: [`crates/codelens-lang-rust/src/index.rs`](https://github.com/shubhamkaushal765/codelens/blob/main/crates/codelens-lang-rust/src/index.rs), [`crates/codelens-lang-python/src/index.rs`](https://github.com/shubhamkaushal765/codelens/blob/main/crates/codelens-lang-python/src/index.rs)
 
 ## References
 

@@ -104,7 +104,7 @@ let short = "aB9$Xq2#mK";
 
 ## Implementation
 
-- Source: [`crates/codelens-analyzers/src/hardcoded_secret.rs`](https://github.com/shubhamkaushal/codelens/blob/main/crates/codelens-analyzers/src/hardcoded_secret.rs)
+- Source: [`crates/codelens-analyzers/src/hardcoded_secret.rs`](https://github.com/shubhamkaushal765/codelens/blob/main/crates/codelens-analyzers/src/hardcoded_secret.rs)
 - Entropy calculation: Shannon entropy function in the same file.
 
 ## References

@@ -111,7 +111,7 @@ Available Prism languages: `rust`, `python`, `toml`, `bash`, `json`, plus all de
 | ------------------------------------- | ----------------------------------------------------------------------- |
 | Another doc page (same site)          | `[label](/path/to-page)` or `[label](./relative-page)`                  |
 | A specific section on this site       | `[label](/path/to-page#anchor-id)`                                      |
-| codelens source code on GitHub        | `[label](https://github.com/shubhamkaushal/codelens/blob/main/...)`     |
+| codelens source code on GitHub        | `[label](https://github.com/shubhamkaushal765/codelens/blob/main/...)`     |
 | External standards (CWE, OWASP, etc.) | Plain URL link with descriptive label                                   |
 
 `onBrokenLinks: 'throw'` will fail the build on any broken internal link.

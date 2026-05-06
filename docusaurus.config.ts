@@ -71,7 +71,7 @@ const config: Config = {
         {to: '/getting-started/install', label: 'Docs', position: 'left'},
         {to: '/rules/', label: 'Rules', position: 'left'},
         {
-          href: 'https://github.com/shubhamkaushal/codelens',
+          href: 'https://github.com/shubhamkaushal765/codelens',
           label: 'GitHub',
           position: 'right',
         },

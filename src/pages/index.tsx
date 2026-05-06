@@ -55,7 +55,7 @@ function QuickStartSection() {
       <div className="container">
         <Heading as="h2">Quick start</Heading>
         <pre className={styles.code}>
-          <code>{`git clone https://github.com/shubhamkaushal/codelens && cd codelens
+          <code>{`git clone https://github.com/shubhamkaushal765/codelens && cd codelens
 cargo build --release -p codelens-cli
 ./target/release/codelens analyze ./src`}</code>
         </pre>

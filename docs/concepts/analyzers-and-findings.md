@@ -11,7 +11,7 @@ An *analyzer* is a Rust struct that implements the `Analyzer` trait and emits ze
 
 Analyzers come in two flavours:
 
-- **Cross-language analyzers** read only the normalized `SemanticIndex` and live in [`codelens-analyzers`](https://github.com/shubhamkaushal/codelens/blob/main/crates/codelens-analyzers/). They never depend on a specific language crate.
+- **Cross-language analyzers** read only the normalized `SemanticIndex` and live in [`codelens-analyzers`](https://github.com/shubhamkaushal765/codelens/blob/main/crates/codelens-analyzers/). They never depend on a specific language crate.
 - **Language-specific analyzers** live alongside their frontend in `codelens-lang-<lang>/src/analyzers/`. They use a typed downcast to reach AST data not exposed by `SemanticIndex` (for example, [`SEC101-rust-unsafe`](/rules/SEC101-rust-unsafe) inspects the Rust AST for `unsafe` blocks).
 
 The dependency-graph rule that keeps these two layers from leaking into each other is described in [Architecture](/architecture).
