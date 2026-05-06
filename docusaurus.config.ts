@@ -74,6 +74,7 @@ const config: Config = {
       logo: {
         alt: 'codelens Logo',
         src: 'img/logo.svg',
+        srcDark: 'img/logo-dark.svg',
       },
       items: [
         {to: '/getting-started/install', label: 'Docs', position: 'left'},
