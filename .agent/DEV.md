@@ -70,16 +70,29 @@ npm run typecheck && npm run build
 
 ### Add a content page
 
-1. Create `docs/<section>/<page>.md` with frontmatter.
+1. Create `docs/<section>/<page>.md` with frontmatter (`title`, `description`).
 2. Add the doc id to [sidebars.ts](../sidebars.ts) in the right category.
-3. `npm run build` to verify.
+3. `npm run build` to verify links and frontmatter.
+
+### Add a CLI subcommand page
+
+1. Create `docs/cli/<subcommand>.md` following the pattern of existing pages (e.g. `docs/cli/report.md`).
+2. Include: usage synopsis, arguments table, flags table, examples, and "See also" links.
+3. Add the id to the `CLI reference` category in [sidebars.ts](../sidebars.ts).
+4. `npm run build`.
+
+### Add an integration page
+
+1. Create `docs/integrations/<name>.md`.
+2. Add the id to the `Integrations` category in [sidebars.ts](../sidebars.ts).
+3. `npm run build`.
 
 ### Add a rule page
 
-When a new analyzer ships in `../codelens/`:
+When a new analyzer ships in `/home/user/codelens/`:
 
-1. Copy `../codelens/docs/rules/<RULE_ID>.md` to `docs/rules/<RULE_ID>.md`.
-2. Replace relative source-tree links (`../../crates/...`) with GitHub blob URLs.
+1. Copy `/home/user/codelens/docs/rules/<RULE_ID>.md` to `docs/rules/<RULE_ID>.md` (if the file exists there) or write from scratch following the rule-page template in [DOCS.md](./DOCS.md).
+2. Replace relative source-tree links (`../../crates/...`) with GitHub blob URLs (`https://github.com/shubhamkaushal765/codelens/blob/main/...`).
 3. Adjust the H1 to match the frontmatter `title`.
 4. Add the id to the `Rules reference` category in [sidebars.ts](../sidebars.ts).
 5. `npm run build`.

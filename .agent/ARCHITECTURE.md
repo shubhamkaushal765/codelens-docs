@@ -17,9 +17,10 @@ codelens-docs/
 │   ├── architecture.md         # /architecture
 │   ├── getting-started/        # /getting-started/*
 │   ├── concepts/               # /concepts/*
-│   ├── cli/                    # /cli/*
+│   ├── cli/                    # /cli/*  (analyze, list, init, show, report, diff, baseline, watch, install-hook, lsp)
 │   ├── configuration/          # /configuration/*
 │   ├── output/                 # /output/*
+│   ├── integrations/           # /integrations/*  (github-action, lsp)
 │   ├── rules/                  # /rules/*  (index + one page per rule_id)
 │   └── extending/              # /extending/*
 ├── src/
@@ -36,14 +37,24 @@ codelens-docs/
 
 `presets[0].docs.routeBasePath = '/'` mounts the docs tree at the site root. The homepage at `src/pages/index.tsx` takes precedence at `/`, so docs entries do not have a route at the root — `intro.md` is at `/intro`.
 
-| URL                              | Source                                |
-| -------------------------------- | ------------------------------------- |
-| `/`                              | `src/pages/index.tsx`                 |
-| `/intro`                         | `docs/intro.md`                       |
-| `/getting-started/install`       | `docs/getting-started/install.md`     |
-| `/rules/`                        | `docs/rules/index.md`                 |
-| `/rules/MAINT001-cyclomatic`     | `docs/rules/MAINT001-cyclomatic.md`   |
-| `/architecture`                  | `docs/architecture.md`                |
+| URL                              | Source                                       |
+| -------------------------------- | -------------------------------------------- |
+| `/`                              | `src/pages/index.tsx`                        |
+| `/intro`                         | `docs/intro.md`                              |
+| `/getting-started/install`       | `docs/getting-started/install.md`            |
+| `/cli/analyze`                   | `docs/cli/analyze.md`                        |
+| `/cli/show`                      | `docs/cli/show.md`                           |
+| `/cli/report`                    | `docs/cli/report.md`                         |
+| `/cli/diff`                      | `docs/cli/diff.md`                           |
+| `/cli/baseline`                  | `docs/cli/baseline.md`                       |
+| `/cli/watch`                     | `docs/cli/watch.md`                          |
+| `/cli/install-hook`              | `docs/cli/install-hook.md`                   |
+| `/cli/lsp`                       | `docs/cli/lsp.md`                            |
+| `/integrations/github-action`    | `docs/integrations/github-action.md`         |
+| `/integrations/lsp`              | `docs/integrations/lsp.md`                   |
+| `/rules/`                        | `docs/rules/index.md`                        |
+| `/rules/MAINT001-cyclomatic`     | `docs/rules/MAINT001-cyclomatic.md`          |
+| `/architecture`                  | `docs/architecture.md`                       |
 
 ---
 
@@ -86,13 +97,15 @@ A green `npm run build` is the test signal — there is no separate test runner.
 
 ## Source-of-truth content
 
-Most content is adapted from the codelens repo at `../codelens/`. Specific mappings:
+Most content is adapted from the codelens repo at `/home/user/codelens/`. Specific mappings:
 
-| Site page                       | Source                                                  |
-| ------------------------------- | ------------------------------------------------------- |
-| `docs/architecture.md`          | `../codelens/docs/architecture.md` + `.agent/ARCHITECTURE.md` |
-| `docs/output/json-schema.md`    | `../codelens/docs/json-schema.md`                       |
-| `docs/rules/<RULE_ID>.md`       | `../codelens/docs/rules/<RULE_ID>.md`                   |
-| `docs/extending/*`              | `../codelens/docs/architecture.md` (Tutorials 1 & 2)    |
+| Site page                             | Source                                                               |
+| ------------------------------------- | -------------------------------------------------------------------- |
+| `docs/architecture.md`                | `/home/user/codelens/docs/architecture.md` + `.agent/ARCHITECTURE.md` |
+| `docs/output/json-schema.md`          | `/home/user/codelens/docs/json-schema.md`                            |
+| `docs/rules/<RULE_ID>.md`             | `/home/user/codelens/docs/rules/<RULE_ID>.md`                        |
+| `docs/extending/*`                    | `/home/user/codelens/docs/architecture.md` (Tutorials 1 & 2)        |
+| `docs/integrations/github-action.md`  | `/home/user/codelens/action.yml` + AGENTS.md HTTP API table          |
+| `docs/integrations/lsp.md`            | `/home/user/codelens/.agent/ARCHITECTURE.md` (codelens-lsp section)  |
 
 When the source moves, update both. The site is the **rendered** version — the source is the canonical text.

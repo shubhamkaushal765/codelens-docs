@@ -17,8 +17,8 @@ The CLI loads exactly one config per run, in this order:
 
 ## Reference
 
-| Section                  | Key               | Type           | Default                              | Description                                                                                  |
-| ------------------------ | ----------------- | -------------- | ------------------------------------ | -------------------------------------------------------------------------------------------- |
+| Section                  | Key               | Type            | Default                             | Description                                                                                  |
+| ------------------------ | ----------------- | --------------- | ----------------------------------- | -------------------------------------------------------------------------------------------- |
 | `[general]`              | `languages`       | array of string | all registered                      | Restrict analysis to these language IDs.                                                     |
 | `[general]`              | `exclude`         | array of glob   | `["target/**", "node_modules/**"]`  | Globs to skip during the file walk. Combined with `.gitignore`.                              |
 | `[general]`              | `follow_symlinks` | bool            | `false`                             | Follow symbolic links while walking.                                                         |
@@ -27,6 +27,9 @@ The CLI loads exactly one config per run, in this order:
 | `[rules.<rule_id>]`      | `enabled`         | bool            | `true`                              | Toggle a single rule on or off.                                                              |
 | `[rules.<rule_id>]`      | `severity`        | string          | rule's default                      | Override severity. One of `info`, `low`, `medium`, `high`, `critical`.                       |
 | `[rules.<rule_id>]`      | *(rule-specific)* | various         | per rule                            | Some rules accept extra knobs such as `threshold`. See [Per-rule configuration](/configuration/per-rule-config). |
+| `[history]`              | `auto_save`       | bool            | `true`                              | When false, runs are never written to `~/.codelens/` history.                                |
+| `[history]`              | `max_scans_per_project` | integer   | `100`                               | Older scans are pruned on write when this limit is exceeded.                                 |
+| `[history]`              | `cache`           | bool            | `true`                              | Enable the incremental file-hash cache at `<project_root>/.codelens-cache/v1.json`.          |
 
 Validation runs on load. Unknown keys, bad types, and out-of-range values produce errors that point at the offending TOML span.
 

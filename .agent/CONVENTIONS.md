@@ -2,17 +2,20 @@
 
 How to write and structure code and content in this repo.
 
+**Last reviewed:** 2026-05-06
+
 ---
 
 ## File and directory naming
 
-| Item                              | Convention             | Example                                  |
-| --------------------------------- | ---------------------- | ---------------------------------------- |
-| MDX content files                 | `kebab-case.md`        | `getting-started/install.md`             |
-| Rule reference files              | `<RULE_ID>.md` (UPPER) | `rules/MAINT001-cyclomatic.md`           |
-| React components                  | `PascalCase.tsx`       | `src/components/Hero/Hero.tsx`           |
-| CSS modules                       | `<Component>.module.css` | `src/pages/index.module.css`           |
-| Sidebar ids                       | match file path minus `.md` | `getting-started/install`            |
+| Item                              | Convention                  | Example                                  |
+| --------------------------------- | --------------------------- | ---------------------------------------- |
+| MDX content files                 | `kebab-case.md`             | `getting-started/install.md`             |
+| Rule reference files              | `<RULE_ID>.md` (UPPER)      | `rules/MAINT001-cyclomatic.md`           |
+| React components                  | `PascalCase.tsx`            | `src/components/Hero/Hero.tsx`           |
+| CSS modules                       | `<Component>.module.css`    | `src/pages/index.module.css`             |
+| Sidebar ids                       | match file path minus `.md` | `getting-started/install`                |
+| New section directories           | `kebab-case/`               | `docs/integrations/`, `docs/cli/`        |
 
 ---
 
@@ -71,6 +74,9 @@ configuration notes, and fix guidance.
 - Admonitions for callouts; keep them short (see [DOCS.md](./DOCS.md)).
 - Internal links use absolute paths from site root: `[install](/getting-started/install)`.
 - External links open in a new tab via Docusaurus default — do not add `target="_blank"` manually.
+- No unhandled MDX syntax errors — use `npm run build` to validate before committing.
+- `description` frontmatter must be ≤160 chars (powers OG tags and search snippets).
+- No marketing copy ("powerful", "blazing-fast"). State the fact directly.
 
 ---
 

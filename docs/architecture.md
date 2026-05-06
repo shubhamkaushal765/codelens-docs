@@ -1,11 +1,28 @@
 ---
 title: Architecture
-description: A condensed tour of the codelens architecture — goals, the two-axis extensibility contract, data flow, and stable contracts.
+description: A condensed tour of the codelens architecture — workspace crates, the two-axis extensibility contract, data flow, and stable contracts.
 ---
 
 # Architecture
 
-This page is a condensed end-user tour of the codelens architecture. The full long-form narrative lives in the source repo.
+This page is a condensed end-user tour of the codelens architecture. The full long-form narrative lives in the source repo at [`docs/architecture.md`](https://github.com/shubhamkaushal765/codelens/blob/main/docs/architecture.md).
+
+## Workspace crates
+
+| Crate | Purpose |
+| --- | --- |
+| `codelens-core` | Traits (`Language`, `Analyzer`), types (`SemanticIndex`, `Finding`, …), `Engine` (incl. `analyze_path_cached`), `Registry`, incremental cache |
+| `codelens-lang-rust` | `syn`-backed Rust frontend + Rust-only analyzers (`SEC101`) |
+| `codelens-lang-python` | `rustpython-parser` Python frontend + Python-only analyzers |
+| `codelens-lang-js` | `oxc_parser` JS/TS frontend; covers `.js/.mjs/.cjs/.jsx/.ts/.mts/.cts/.tsx` |
+| `codelens-analyzers` | 25 cross-language analyzers spanning all five dimensions |
+| `codelens-report` | JSON / SARIF 2.1.0 / Markdown / terminal formatters; A–F grade computation |
+| `codelens-show` | History store (`~/.codelens/`), `tiny_http` server, embedded web UI, Unix double-fork daemon, analytics |
+| `codelens-registry` | Shared `build_registry()` — used by both the CLI and the LSP |
+| `codelens-lsp` | Hand-rolled stdio Language Server (JSON-RPC, no `tower-lsp`) |
+| `codelens-cli` | `codelens` binary — all subcommands |
+
+**Hard rule:** `codelens-lang-*` and `codelens-analyzers` never depend on each other. Both depend only on `codelens-core`. Only `codelens-cli` depends on every crate.
 
 ## Goals
 
@@ -15,7 +32,7 @@ A secondary goal is production quality: idiomatic Rust, errors via `thiserror` i
 
 ## Non-goals
 
-What is **not** a goal for v1: real coverage data (line, branch, MC/DC) — coverage requires runtime instrumentation, not static analysis. Taint analysis or dataflow tracking — these need a control-flow graph representation that is out of scope. IDE-grade incremental parsing — there is no LSP server, no watch mode, no partial re-parse. `tree-sitter` is also explicitly off the table: if no native Rust parser is available for a language, that language is stubbed or dropped, not back-doored through `tree-sitter` bindings.
+Real coverage data (line, branch, MC/DC) — coverage requires runtime instrumentation, not static analysis. Taint analysis or dataflow tracking — these need a control-flow graph. `tree-sitter` as a fallback parser — if no native Rust parser exists for a language, that language is stubbed or dropped.
 
 ## The two-axis extensibility contract
 
@@ -74,17 +91,21 @@ The pipeline for a single `codelens analyze <path>` run:
 
 - **Phase A — parse (parallel):** `rayon::par_iter` over the lexicographically sorted file list. Each file is read, wrapped in `Arc<SourceFile>`, and passed to its language frontend. Parse failures are counted and do not abort the run.
 - **Phase B — per-file analysis (parallel):** a second `rayon::par_iter` over the parsed files. Each worker filters analyzers by `supported_languages()` and calls `analyze_file`.
-- **Phase C — project analysis (sequential):** each analyzer's `analyze_project` runs once with the full project. This is where rules that aggregate across files (fan-out, cycle detection) belong; v1's cross-language analyzers all return an empty `Vec` here.
+- **Phase C — project analysis (sequential):** each analyzer's `analyze_project` runs once with the full project. This is where rules that aggregate across files (fan-out, cycle detection, duplicate code) run.
 
 A single `sort_findings` call after Phase C uses the key `(file, span.start, rule_id)`. One sort at the end is cheaper than maintaining a sorted structure during parallel collection.
 
+## Incremental cache
+
+`Engine::analyze_path_cached` (used by `codelens analyze` by default and always by `codelens watch`) adds a blake3 content-hash step before parse. Files whose hash matches the cache entry at `<project_root>/.codelens-cache/v1.json` reuse cached findings without re-parsing. Project-level analyzers (`CyclicDepsAnalyzer`, `TestRatioAnalyzer`, `DuplicateCodeAnalyzer`, `VulnerableDepsAnalyzer`) always re-run because they aggregate across all files. Disable with `--no-cache` or `[history] cache = false`.
+
 ## Stable contracts
 
-- **`schema_version`** — the JSON output starts at `1` and is bumped on any breaking change to the report shape. Adding fields is non-breaking; removing or retyping a field is breaking.
+- **`schema_version`** — the JSON output is at version 2. Bumped on any breaking change to the report shape. Adding fields is non-breaking; removing or retyping a field is breaking.
 - **`rule_id`** — strings are stable once a rule ships. Renaming a rule ID is a breaking change to any baseline file that references it.
 - **Finding sort order** — `(file, span.start, rule_id)`. Two runs against unchanged source produce byte-identical output.
 - **`#[non_exhaustive]` enums** — `FunctionKind`, `Visibility`, and similar enums in `codelens-core` are non-exhaustive, so adding a variant is non-breaking; downstream code must handle a `_` arm.
 
 :::info
-The full long-form architecture doc lives at [https://github.com/shubhamkaushal/codelens/blob/main/docs/architecture.md](https://github.com/shubhamkaushal/codelens/blob/main/docs/architecture.md).
+The full long-form architecture doc lives at [https://github.com/shubhamkaushal765/codelens/blob/main/docs/architecture.md](https://github.com/shubhamkaushal765/codelens/blob/main/docs/architecture.md).
 :::

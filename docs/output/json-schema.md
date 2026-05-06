@@ -8,8 +8,10 @@ description: Full reference for the codelens JSON output — top-level shape, ev
 
 This is the complete reference for the JSON document emitted by `codelens analyze --format json`. For a usage-oriented overview, see [JSON output](./json).
 
-**Schema version:** 1
-**Stability:** v1 is stable. Any breaking change bumps `schema_version`.
+The canonical source lives at [`docs/json-schema.md` in the codelens repo](https://github.com/shubhamkaushal765/codelens/blob/main/docs/json-schema.md).
+
+**Schema version:** 2
+**Stability:** v2 is stable. Any breaking change bumps `schema_version`.
 
 ---
 
@@ -17,7 +19,7 @@ This is the complete reference for the JSON document emitted by `codelens analyz
 
 ```json
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "tool": {
     "name": "codelens",
     "version": "0.1.0"
@@ -29,6 +31,13 @@ This is the complete reference for the JSON document emitted by `codelens analyz
     "documentation": 78.3,
     "test_smell": 95.0
   },
+  "grades": {
+    "maintainability": "B",
+    "security": "A",
+    "complexity": "A",
+    "documentation": "C",
+    "test_smell": "A"
+  },
   "findings": [],
   "stats": {
     "files_scanned": 412,
@@ -39,7 +48,7 @@ This is the complete reference for the JSON document emitted by `codelens analyz
 ```
 
 Field order in the top-level object is always:
-`schema_version` → `tool` → `scores` → `findings` → `stats`.
+`schema_version` → `tool` → `scores` → `grades` → `findings` → `stats`.
 
 ---
 
@@ -47,10 +56,10 @@ Field order in the top-level object is always:
 
 ### `schema_version`
 
-| Property      | Value                                                  |
-| ------------- | ------------------------------------------------------ |
-| Type          | integer                                                |
-| Current value | `1`                                                    |
+| Property      | Value                                                 |
+| ------------- | ----------------------------------------------------- |
+| Type          | integer                                               |
+| Current value | `2`                                                   |
 | Constraints   | Positive integer. Incremented on any breaking change. |
 
 **Policy:** Consumers should reject documents whose `schema_version` is greater than the highest version they support, and may warn on versions lower than expected.
@@ -114,6 +123,28 @@ where `kloc` is the effective lines of code of the project (approximated from to
 
 ---
 
+### `grades`
+
+| Property   | Value                          |
+| ---------- | ------------------------------ |
+| Type       | object                         |
+| Key type   | string (dimension name)        |
+| Value type | string (letter grade `A`–`F`)  |
+
+Letter grade assigned to each dimension based on its score:
+
+| Grade | Score range |
+| ----- | ----------- |
+| `"A"` | ≥ 90        |
+| `"B"` | ≥ 80        |
+| `"C"` | ≥ 70        |
+| `"D"` | ≥ 60        |
+| `"F"` | < 60        |
+
+Field order in `grades` matches the field order of `scores`.
+
+---
+
 ### `findings`
 
 | Property | Value                    |
@@ -149,20 +180,24 @@ where `kloc` is the effective lines of code of the project (approximated from to
   "suggestion": "Extract sub-routines to reduce branching.",
   "references": [
     "https://docs.codelens.dev/rules/MAINT001-cyclomatic"
-  ]
+  ],
+  "cwe": ["CWE-1121"],
+  "owasp": []
 }
 ```
 
-| Field        | Type             | Constraints         | Description                                                                       |
-| ------------ | ---------------- | ------------------- | --------------------------------------------------------------------------------- |
-| `analyzer`   | string           | Non-empty           | Stable ID of the analyzer instance (e.g. `"MAINT001-cyclomatic"`)                |
-| `dimension`  | string           | See dimension table | Quality dimension addressed                                                       |
-| `rule_id`    | string           | Non-empty           | Stable rule identifier (same format as `analyzer` for single-rule analyzers)     |
-| `severity`   | string           | See severity table  | How severe the finding is                                                         |
-| `message`    | string           | Non-empty           | Human-readable explanation                                                        |
-| `location`   | object           | —                   | Precise source location (see below)                                               |
-| `suggestion` | string \| null   | —                   | Optional fix guidance                                                             |
-| `references` | array of string  | —                   | Links to external documentation (CWE, rule pages, etc.)                          |
+| Field        | Type             | Constraints         | Description                                                                               |
+| ------------ | ---------------- | ------------------- | ----------------------------------------------------------------------------------------- |
+| `analyzer`   | string           | Non-empty           | Stable ID of the analyzer instance (e.g. `"MAINT001-cyclomatic"`)                        |
+| `dimension`  | string           | See dimension table | Quality dimension addressed                                                               |
+| `rule_id`    | string           | Non-empty           | Stable rule identifier (same format as `analyzer` for single-rule analyzers)             |
+| `severity`   | string           | See severity table  | How severe the finding is                                                                 |
+| `message`    | string           | Non-empty           | Human-readable explanation                                                                |
+| `location`   | object           | —                   | Precise source location (see below)                                                       |
+| `suggestion` | string \| null   | —                   | Optional fix guidance                                                                     |
+| `references` | array of string  | —                   | Links to external documentation (rule pages, vendor advisories, etc.)                    |
+| `cwe`        | array of string  | —                   | CWE identifiers (e.g. `"CWE-798"`). Omitted from output when empty.                      |
+| `owasp`      | array of string  | —                   | OWASP categories (e.g. `"A07:2021"`). Omitted from output when empty.                    |
 
 **Severity values** (lowest to highest):
 
@@ -204,7 +239,7 @@ Input: a small Rust project with two files (`src/auth.rs`, `src/lib.rs`).
 
 ```json
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "tool": {
     "name": "codelens",
     "version": "0.1.0"
@@ -215,6 +250,13 @@ Input: a small Rust project with two files (`src/auth.rs`, `src/lib.rs`).
     "complexity": 100.0,
     "documentation": 78.0,
     "test_smell": 95.0
+  },
+  "grades": {
+    "maintainability": "B",
+    "security": "F",
+    "complexity": "A",
+    "documentation": "C",
+    "test_smell": "A"
   },
   "findings": [
     {
@@ -232,7 +274,9 @@ Input: a small Rust project with two files (`src/auth.rs`, `src/lib.rs`).
       "suggestion": "Move credentials to environment variables or a secrets manager.",
       "references": [
         "https://docs.codelens.dev/rules/SEC001-hardcoded-secret"
-      ]
+      ],
+      "cwe": ["CWE-798"],
+      "owasp": ["A07:2021"]
     },
     {
       "analyzer": "MAINT001-cyclomatic",
@@ -249,7 +293,8 @@ Input: a small Rust project with two files (`src/auth.rs`, `src/lib.rs`).
       "suggestion": "Extract sub-routines to reduce branching.",
       "references": [
         "https://docs.codelens.dev/rules/MAINT001-cyclomatic"
-      ]
+      ],
+      "cwe": ["CWE-1121"]
     }
   ],
   "stats": {
@@ -260,12 +305,11 @@ Input: a small Rust project with two files (`src/auth.rs`, `src/lib.rs`).
 }
 ```
 
-The original schema source lives at [`docs/json-schema.md` in the codelens repo](https://github.com/shubhamkaushal/codelens/blob/main/docs/json-schema.md).
-
 ---
 
 ## Version history
 
-| Version | Changes                  |
-| ------- | ------------------------ |
-| 1       | Initial stable release.  |
+| Version | Changes |
+| ------- | ------- |
+| 2 | Added `grades` top-level object (breaking: new required field). Added optional `cwe` and `owasp` arrays to findings (omitted when empty). Bumped `schema_version` from 1 to 2. |
+| 1 | Initial stable release. |

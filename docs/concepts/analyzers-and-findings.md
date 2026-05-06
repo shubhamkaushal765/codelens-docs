@@ -22,23 +22,25 @@ To write a new analyzer, see [Add an analyzer](/extending/add-an-analyzer).
 
 A *finding* is a single issue at a specific location. The Rust struct has these fields:
 
-| Field        | Type              | Notes                                                       |
-| ------------ | ----------------- | ----------------------------------------------------------- |
-| `analyzer`   | `AnalyzerId`      | Which analyzer emitted this finding                         |
-| `dimension`  | `Dimension`       | One of the five v1 dimensions, or a `Custom(...)` variant   |
-| `rule_id`    | `String`          | Stable identifier, e.g. `MAINT001-cyclomatic`               |
-| `severity`   | `Severity`        | `info` / `low` / `medium` / `high` / `critical`             |
-| `message`    | `String`          | One-line human-readable description                         |
-| `location`   | `Location`        | File path, byte span, and 1-indexed start/end line:column   |
-| `suggestion` | `Option<String>`  | Optional fix hint                                           |
-| `references` | `Vec<String>`     | External standards, CWE / OWASP IDs, etc.                   |
+| Field        | Type              | Notes                                                              |
+| ------------ | ----------------- | ------------------------------------------------------------------ |
+| `analyzer`   | `AnalyzerId`      | Which analyzer emitted this finding                                |
+| `dimension`  | `Dimension`       | One of the five built-in dimensions, or a `Custom(...)` variant    |
+| `rule_id`    | `String`          | Stable identifier, e.g. `MAINT001-cyclomatic`                      |
+| `severity`   | `Severity`        | `info` / `low` / `medium` / `high` / `critical`                    |
+| `message`    | `String`          | One-line human-readable description                                |
+| `location`   | `Location`        | File path, byte span, and 1-indexed start/end line:column          |
+| `suggestion` | `Option<String>`  | Optional fix hint (populated on most security and doc rules)       |
+| `references` | `Vec<String>`     | External standards, rule page URLs, etc.                           |
+| `cwe`        | `Vec<String>`     | CWE identifiers (e.g. `"CWE-798"`); omitted when empty            |
+| `owasp`      | `Vec<String>`     | OWASP categories (e.g. `"A07:2021"`); omitted when empty          |
 
 The canonical JSON shape is documented at [JSON schema](/output/json-schema). A single finding looks like this in JSON:
 
 ```json
 {
   "analyzer": "MAINT001-cyclomatic",
-  "dimension": "Maintainability",
+  "dimension": "maintainability",
   "rule_id": "MAINT001-cyclomatic",
   "severity": "medium",
   "message": "function `process_request` has cyclomatic complexity 14 (threshold 10)",
@@ -48,8 +50,10 @@ The canonical JSON shape is documented at [JSON schema](/output/json-schema). A 
     "start": { "line": 42, "column": 1 },
     "end": { "line": 78, "column": 2 }
   },
-  "suggestion": null,
-  "references": []
+  "suggestion": "Extract sub-routines to reduce branching.",
+  "references": ["https://docs.codelens.dev/rules/MAINT001-cyclomatic"],
+  "cwe": ["CWE-1121"],
+  "owasp": []
 }
 ```
 

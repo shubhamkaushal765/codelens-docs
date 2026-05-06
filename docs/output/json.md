@@ -24,7 +24,7 @@ codelens analyze ./src --format json --output report.json
 | ---------------- | ---------------------------------------------------------------------------------- |
 | Pretty-printed   | Always (two-space indent)                                                          |
 | Field order      | Stable; documented per object                                                      |
-| `schema_version` | Integer; starts at `1`. Bumped on any breaking change to the report shape.        |
+| `schema_version` | Integer; current value is `2`. Bumped on any breaking change to the report shape. |
 | Sort order       | Findings sorted by `(file, span.start, rule_id)`                                   |
 
 For the full reference — every field, every constraint, every example — see [JSON schema](./json-schema).
@@ -39,7 +39,7 @@ A minimal report with a single finding:
 
 ```json
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "tool": {
     "name": "codelens",
     "version": "0.1.0"
@@ -50,6 +50,13 @@ A minimal report with a single finding:
     "complexity": 100.0,
     "documentation": 78.0,
     "test_smell": 95.0
+  },
+  "grades": {
+    "maintainability": "B",
+    "security": "A",
+    "complexity": "A",
+    "documentation": "C",
+    "test_smell": "A"
   },
   "findings": [
     {
@@ -67,7 +74,8 @@ A minimal report with a single finding:
       "suggestion": "Extract sub-routines to reduce branching.",
       "references": [
         "https://docs.codelens.dev/rules/MAINT001-cyclomatic"
-      ]
+      ],
+      "cwe": ["CWE-1121"]
     }
   ],
   "stats": {

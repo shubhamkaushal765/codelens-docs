@@ -7,32 +7,39 @@ description: Reference for the codelens analyze subcommand — flags, examples, 
 
 ```
 codelens analyze <PATH> [OPTIONS]
+codelens scan <PATH> [OPTIONS]    # alias
 ```
 
 Walks `<PATH>` (a file or directory), parses each supported source file, runs every enabled analyzer, and emits findings in the chosen format. The walk respects `.gitignore` by default, skips vendor directories, does not follow symlinks, and parses files in parallel via `rayon`.
 
+`scan` is a full alias for `analyze` — both accept the same flags.
+
 ## Arguments
 
-| Argument | Description                                  |
-| -------- | -------------------------------------------- |
+| Argument | Description                                         |
+| -------- | --------------------------------------------------- |
 | `<PATH>` | Root path to analyse — file or directory. Required. |
 
 ## Flags
 
-| Flag                    | Type                                              | Default    | Description                                                                                  |
-| ----------------------- | ------------------------------------------------- | ---------- | -------------------------------------------------------------------------------------------- |
-| `--dimensions <LIST>`   | comma-separated string                            | all        | Restrict to these dimensions (e.g. `security,maintainability`).                              |
-| `--languages <LIST>`    | comma-separated string                            | all        | Restrict to these language IDs (e.g. `rust,python`).                                         |
-| `--format <FORMAT>`     | `json` \| `terminal` \| `markdown` \| `sarif`     | `terminal` | Output format. `sarif` is not implemented in v1.                                             |
-| `--output <FILE>`       | path                                              | stdout     | Write rendered output to `<FILE>` instead of stdout.                                         |
-| `--config <FILE>`       | path                                              | auto       | Path to a `codelens.toml`. Overrides upward auto-discovery from the current working directory. |
-| `--fail-on <LEVEL>`     | `info` \| `low` \| `medium` \| `high` \| `critical` | unset      | Exit with code 1 if any finding has severity at or above `<LEVEL>`.                          |
-| `--baseline <FILE>`     | path                                              | unset      | Suppress findings already present in this baseline JSON file.                                |
-| `--no-color`            | flag                                              | off        | Disable ANSI colour in terminal output.                                                      |
-| `--hyperlinks`          | flag                                              | off        | Emit OSC-8 hyperlinks for file paths in terminal output.                                     |
-| `-v`, `--verbose`       | flag (repeatable)                                 | off        | Increase log verbosity. `-v` enables INFO, `-vv` enables DEBUG.                              |
-| `-h`, `--help`          | flag                                              |            | Print help.                                                                                  |
-| `-V`, `--version`       | flag                                              |            | Print version.                                                                               |
+| Flag                    | Type                                                  | Default    | Description                                                                                           |
+| ----------------------- | ----------------------------------------------------- | ---------- | ----------------------------------------------------------------------------------------------------- |
+| `--dimensions <LIST>`   | comma-separated string                                | all        | Restrict to these dimensions (e.g. `security,maintainability`).                                       |
+| `--languages <LIST>`    | comma-separated string                                | all        | Restrict to these language IDs (e.g. `rust,python`).                                                 |
+| `--format <FORMAT>`     | `json` \| `terminal` \| `markdown` \| `sarif`         | `terminal` | Output format.                                                                                        |
+| `--output <FILE>`       | path                                                  | stdout     | Write rendered output to `<FILE>` instead of stdout.                                                  |
+| `--config <FILE>`       | path                                                  | auto       | Path to a `codelens.toml`. Overrides upward auto-discovery.                                           |
+| `--fail-on <LEVEL>`     | `info` \| `low` \| `medium` \| `high` \| `critical`   | unset      | Exit with code 1 if any finding has severity at or above `<LEVEL>`.                                   |
+| `--baseline <FILE>`     | path                                                  | unset      | Suppress findings already present in this baseline JSON file.                                         |
+| `--no-save`             | flag                                                  | off        | Skip saving the run to `~/.codelens/` history. Overrides `[history] auto_save = true`.               |
+| `--no-cache`            | flag                                                  | off        | Bypass the incremental file-hash cache (`.codelens-cache/v1.json`). Forces a cold analysis run.       |
+| `--cwe <ID>`            | string (repeatable)                                   | unset      | Show only findings whose `cwe` array contains `<ID>` (e.g. `CWE-798`). Repeatable; multiple values intersect. |
+| `--owasp <CAT>`         | string (repeatable)                                   | unset      | Show only findings whose `owasp` array contains `<CAT>` (e.g. `A07:2021`). Repeatable; intersects with `--cwe`. |
+| `--no-color`            | flag                                                  | off        | Disable ANSI colour in terminal output.                                                               |
+| `--hyperlinks`          | flag                                                  | off        | Emit OSC-8 hyperlinks for file paths in terminal output.                                              |
+| `-v`, `--verbose`       | flag (repeatable)                                     | off        | Increase log verbosity. `-v` enables INFO, `-vv` enables DEBUG.                                       |
+| `-h`, `--help`          | flag                                                  |            | Print help.                                                                                           |
+| `-V`, `--version`       | flag                                                  |            | Print version.                                                                                        |
 
 ## Examples
 
@@ -54,10 +61,10 @@ Fail CI on any high-severity finding:
 codelens analyze . --fail-on high
 ```
 
-Use an explicit config and restrict to maintainability rules:
+Use an explicit config and restrict to security rules only:
 
 ```bash
-codelens analyze . --config ./codelens.toml --dimensions maintainability
+codelens analyze . --config ./codelens.toml --dimensions security
 ```
 
 Suppress pre-existing findings via a baseline:
@@ -66,13 +73,30 @@ Suppress pre-existing findings via a baseline:
 codelens analyze . --baseline baseline.json --fail-on medium
 ```
 
+Filter findings to a specific CWE or OWASP category:
+
+```bash
+codelens analyze . --cwe CWE-798
+codelens analyze . --owasp A07:2021 --fail-on high
+```
+
+One-off cold run without saving to history:
+
+```bash
+codelens analyze . --no-save --no-cache
+```
+
+## Incremental cache
+
+By default, codelens caches per-file findings keyed by a blake3 content hash at `<project_root>/.codelens-cache/v1.json`. Unchanged files reuse cached findings on the next run. Use `--no-cache` to force a full re-analysis. Disable globally with `[history] cache = false` in `codelens.toml`.
+
 ## Exit codes
 
-| Code | Meaning                                                                                  |
-| ---- | ---------------------------------------------------------------------------------------- |
-| `0`  | Output rendered. No finding met or exceeded the `--fail-on` threshold (or the flag was unset). |
-| `1`  | At least one finding met or exceeded the `--fail-on` threshold.                          |
-| `2`  | Configuration or argument error (invalid flag value, malformed `codelens.toml`, missing path). |
+| Code | Meaning                                                                                           |
+| ---- | ------------------------------------------------------------------------------------------------- |
+| `0`  | Output rendered. No finding met or exceeded the `--fail-on` threshold (or the flag was unset).    |
+| `1`  | At least one finding met or exceeded the `--fail-on` threshold.                                   |
+| `2`  | Configuration or argument error (invalid flag value, malformed `codelens.toml`, missing path).    |
 
 :::note
 The `--fail-on` flag has no default. If you omit it, `codelens analyze` exits `0` regardless of how many findings it reports — the command is informational unless you opt in to a gate.
@@ -83,3 +107,5 @@ The `--fail-on` flag has no default. If you omit it, `codelens analyze` exits `0
 - [codelens.toml reference](/configuration/codelens-toml)
 - [Baselines and fail-on workflows](/configuration/baselines-and-fail-on)
 - [Output formats](/output/terminal)
+- [`codelens report`](/cli/report)
+- [`codelens watch`](/cli/watch)

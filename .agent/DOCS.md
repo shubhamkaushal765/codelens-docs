@@ -1,6 +1,8 @@
 # DOCS.md — Documentation Style Guide
 
-How to write and maintain content for the codelens-docs site. Adapted from `../codelens/.agent/DOCS.md`.
+**Last reviewed:** 2026-05-06
+
+How to write and maintain content for the codelens-docs site. Adapted from `/home/user/codelens/.agent/DOCS.md`.
 
 ---
 
@@ -124,16 +126,18 @@ Every page under `docs/rules/<RULE_ID>.md` follows this structure:
 ---
 title: <RULE_ID> — <human title>
 sidebar_label: <RULE_ID>
-description: <one-line summary>
+description: <one-line summary ≤160 chars>
 ---
 
 # <RULE_ID> — <human title>
 
-| Property         | Value           |
-| ---------------- | --------------- |
-| Dimension        | <Dimension>     |
-| Default severity | <Severity>      |
-| Languages        | <list>          |
+| Property         | Value                                  |
+| ---------------- | -------------------------------------- |
+| Dimension        | <Dimension>                            |
+| Default severity | <Severity>                             |
+| Languages        | <list or "All">                        |
+| CWE              | CWE-NNN (if applicable, else omit row) |
+| OWASP            | AXX:20YY (if applicable, else omit)    |
 
 ## What it detects
 …
@@ -142,7 +146,7 @@ description: <one-line summary>
 …
 
 ## Configuration
-… (or "No configuration knobs in v1.")
+… (or "No configuration knobs beyond `enabled` and `severity`.")
 
 ## Examples — flagged
 …
@@ -157,6 +161,8 @@ description: <one-line summary>
 - External standards (CWE, OWASP, etc.)
 ```
 
+The `CWE` and `OWASP` rows in the property table are optional — include only when the rule maps to a standard. The source of truth for all mappings is [`docs/taxonomy.md`](https://github.com/shubhamkaushal765/codelens/blob/main/docs/taxonomy.md) in the codelens repo.
+
 ---
 
 ## What NOT to write
@@ -170,13 +176,15 @@ description: <one-line summary>
 
 ## When to update
 
-| Trigger                              | Files                                                |
-| ------------------------------------ | ---------------------------------------------------- |
-| New rule ships in codelens           | `docs/rules/<RULE_ID>.md`, [sidebars.ts](../sidebars.ts) |
-| New CLI flag                         | `docs/cli/analyze.md` (or relevant subcommand page) |
-| New config knob                      | `docs/configuration/codelens-toml.md`                |
-| New output format                    | `docs/output/<format>.md`, sidebar                  |
-| Schema bump                          | `docs/output/json-schema.md`                         |
-| New language                         | `docs/getting-started/install.md`, mention everywhere |
+| Trigger                              | Files                                                                    |
+| ------------------------------------ | ------------------------------------------------------------------------ |
+| New rule ships in codelens           | `docs/rules/<RULE_ID>.md`, [sidebars.ts](../sidebars.ts)                 |
+| New CLI subcommand                   | `docs/cli/<subcommand>.md`, [sidebars.ts](../sidebars.ts), `AGENTS.md` IA |
+| New CLI flag on analyze              | `docs/cli/analyze.md`                                                    |
+| New config knob                      | `docs/configuration/codelens-toml.md`                                    |
+| New output format                    | `docs/output/<format>.md`, sidebar                                       |
+| Schema bump                          | `docs/output/json-schema.md`, `docs/output/json.md`                      |
+| New language                         | `docs/getting-started/install.md`, `docs/intro.md`                       |
+| New integration                      | `docs/integrations/<name>.md`, [sidebars.ts](../sidebars.ts)             |
 
 Reviewers should catch missing updates; CI does not gate on doc freshness.

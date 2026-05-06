@@ -31,7 +31,7 @@ go          go
 ```
 
 :::note
-`go` and `javascript` appear in the registry, but their `parse` implementations currently return `Unsupported` and the CLI will skip files in those languages. See [language support](/getting-started/install#language-support) for the current support matrix.
+`go` appears in the registry but its `parse` implementation returns `Unsupported`. JavaScript/TypeScript is fully supported. See [language support](/getting-started/install#language-support) for the current support matrix.
 :::
 
 ## codelens list analyzers

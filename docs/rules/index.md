@@ -7,19 +7,64 @@ description: All rules built into codelens v1, indexed by dimension and severity
 
 A *rule* is a single check codelens performs against your code. Each rule has a stable id (e.g. `MAINT001-cyclomatic`) that never changes once shipped, a dimension, and a default severity.
 
-## All rules
+## All rules by dimension
 
-| Rule ID | Dimension | Default severity | Languages | One-liner |
-| --- | --- | --- | --- | --- |
-| [MAINT001-cyclomatic](/rules/MAINT001-cyclomatic) | Maintainability | Medium | All | Functions whose cyclomatic complexity exceeds a threshold |
-| [MAINT003-fn-length](/rules/MAINT003-fn-length) | Maintainability | Low | All | Functions whose body exceeds a line-count threshold |
-| [MAINT004-file-length](/rules/MAINT004-file-length) | Maintainability | Low | All | Files that exceed a line-count threshold |
-| [MAINT005-deep-nesting](/rules/MAINT005-deep-nesting) | Maintainability | Medium | All | Functions nested more deeply than a threshold |
-| [DOC001-public-api-undoc](/rules/DOC001-public-api-undoc) | Documentation | Medium | All | Public functions and types missing doc comments |
-| [DOC002-todo-fixme](/rules/DOC002-todo-fixme) | Documentation | Info | All | Inventory of TODO and FIXME markers in comments |
-| [SEC001-hardcoded-secret](/rules/SEC001-hardcoded-secret) | Security | High | All | Credentials and high-entropy secrets in string literals |
-| [SEC002-eval-sink](/rules/SEC002-eval-sink) | Security | High | Python, JS/TS | Calls to `eval`, `exec`, or `Function(...)` (Python and JS only) |
-| [SEC101-rust-unsafe](/rules/SEC101-rust-unsafe) | Security | Info | Rust only | Unsafe blocks/fns/impls/traits inventory (Rust only) |
+### Complexity
+
+| Rule ID | Title | Default severity | Languages |
+| --- | --- | --- | --- |
+| [CPLX001-fan-out](/rules/CPLX001-fan-out) | Module Fan-Out | Low | All |
+| [CPLX002-cyclic-deps](/rules/CPLX002-cyclic-deps) | Cyclic Imports | High | All |
+| [CPLX003-duplicate-code](/rules/CPLX003-duplicate-code) | Duplicate Code Block Detected | Medium | All |
+
+### Documentation
+
+| Rule ID | Title | Default severity | Languages |
+| --- | --- | --- | --- |
+| [DOC001-public-api-undoc](/rules/DOC001-public-api-undoc) | Public API Documentation | Medium | All |
+| [DOC002-todo-fixme](/rules/DOC002-todo-fixme) | TODO / FIXME Marker Inventory | Info | All |
+| [DOC003-empty-doc](/rules/DOC003-empty-doc) | Empty or Placeholder Documentation Comment | Info | All |
+
+### Maintainability
+
+| Rule ID | Title | Default severity | Languages |
+| --- | --- | --- | --- |
+| [MAINT001-cyclomatic](/rules/MAINT001-cyclomatic) | Cyclomatic Complexity | Medium | All |
+| [MAINT002-cognitive](/rules/MAINT002-cognitive) | Cognitive Complexity | Medium | All |
+| [MAINT003-fn-length](/rules/MAINT003-fn-length) | Function Length | Low | All |
+| [MAINT004-file-length](/rules/MAINT004-file-length) | File Length | Low | All |
+| [MAINT005-deep-nesting](/rules/MAINT005-deep-nesting) | Deep Nesting | Medium | All |
+| [MAINT006-too-many-params](/rules/MAINT006-too-many-params) | Too Many Parameters | Low | All |
+| [MAINT007-return-complexity](/rules/MAINT007-return-complexity) | Excessive Return Statements | Low | All |
+
+### Security
+
+| Rule ID | Title | Default severity | Languages |
+| --- | --- | --- | --- |
+| [SEC001-hardcoded-secret](/rules/SEC001-hardcoded-secret) | Hardcoded Secrets | High | All |
+| [SEC002-eval-sink](/rules/SEC002-eval-sink) | Unsafe Code Execution | High | Python, JS/TS |
+| [SEC003-shell-injection](/rules/SEC003-shell-injection) | Shell Injection Sink | High | All |
+| [SEC004-weak-crypto](/rules/SEC004-weak-crypto) | Weak Cryptographic Hash Algorithm | Medium | All |
+| [SEC005-insecure-deser](/rules/SEC005-insecure-deser) | Insecure Deserialization | High | Python, JS/TS |
+| [SEC006-sql-injection](/rules/SEC006-sql-injection) | SQL Injection via String Interpolation | High | All |
+| [SEC007-path-traversal](/rules/SEC007-path-traversal) | Path Traversal via Unvalidated File Paths | High | All |
+| [SEC101-rust-unsafe](/rules/SEC101-rust-unsafe) | Unsafe Code Audit Trail | Info | Rust only |
+
+### Dependency Security
+
+| Rule ID | Title | Default severity | Languages |
+| --- | --- | --- | --- |
+| [DEP001-vulnerable-deps](/rules/DEP001-vulnerable-deps) | Known Vulnerable Dependency | High | All (project-level) |
+
+### Test Smells
+
+| Rule ID | Title | Default severity | Languages |
+| --- | --- | --- | --- |
+| [TEST001-test-ratio](/rules/TEST001-test-ratio) | Low Test-to-Source Ratio | Low | All |
+| [TEST002-no-asserts](/rules/TEST002-no-asserts) | Test File With No Assertions | Medium | All |
+| [TEST003-skipped](/rules/TEST003-skipped) | Skipped or Ignored Tests | Info | All |
+| [TEST004-flaky-time](/rules/TEST004-flaky-time) | Test Uses Time or Randomness | Medium | All |
+| [TEST005-assert-count](/rules/TEST005-assert-count) | Too Many Assertions in One Test | Low | All |
 
 ## Severity levels
 
@@ -35,6 +80,6 @@ Severity controls how heavily a finding is weighted in the dimension score. High
 
 See [Severity and scoring](/concepts/severity-and-scoring) for the score formula.
 
-## Coming in future releases
+## Suppression
 
-Eight rules are listed in the v1 spec but not yet shipped — see [Coming soon](/rules/coming-soon).
+All rules support inline suppression via special comments. See [Finding Suppression](./suppression.md) for syntax and examples.

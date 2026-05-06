@@ -1,16 +1,15 @@
 ---
-title: DOC001-public-api-undoc — Public API documentation
-sidebar_label: DOC001-public-api-undoc
-description: Detects public functions and types that lack a documentation comment.
+title: DOC001 — Public API Documentation
+sidebar_label: DOC001
+description: Flags every public function or type that lacks a documentation comment
 ---
 
-# DOC001-public-api-undoc — Public API documentation
+# DOC001-public-api-undoc — Public API Documentation
 
-| Property         | Value          |
-| ---------------- | -------------- |
-| Dimension        | Documentation  |
-| Default severity | Medium         |
-| Languages        | All            |
+**Dimension:** Documentation
+**Default severity:** Medium
+**Languages:** All
+**Last reviewed:** 2026-05-03
 
 ## What it detects
 
@@ -18,13 +17,13 @@ Flags every public function or type that lacks a documentation comment. The anal
 
 ## Why it matters
 
-Undocumented public APIs create friction for users and maintainers. Clear, minimal documentation of input, output, invariants, and error conditions is essential for code that is meant to be consumed by other modules or external users. See [ARCH_SPEC § 5.4](https://github.com/shubhamkaushal/codelens/blob/main/.agent/ARCH_SPEC.md) for the `SemanticIndex` contract.
+Undocumented public APIs create friction for users and maintainers. Clear, minimal documentation of input, output, invariants, and error conditions is essential for code that is meant to be consumed by other modules or external users. See [ARCH_SPEC § 5.4](https://github.com/shubhamkaushal765/codelens/blob/main/.agent/ARCH_SPEC.md#54-semanticindex-cross-language-contract) for the `SemanticIndex` contract.
 
 ## Configuration
 
 No configuration knobs in v1.
 
-## Examples — flagged
+## Example — flagged
 
 **Rust:**
 
@@ -41,7 +40,7 @@ def undocumented_public_function(x, y):
     return x + y
 ```
 
-## Examples — not flagged
+## Example — not flagged
 
 **Rust:**
 
@@ -70,7 +69,8 @@ def documented_public_function(x, y):
 
 ## Implementation
 
-- Source: [`crates/codelens-analyzers/src/public_api_undoc.rs`](https://github.com/shubhamkaushal/codelens/blob/main/crates/codelens-analyzers/src/public_api_undoc.rs)
+- Source: [crates/codelens-analyzers/src/public_api_undoc.rs](https://github.com/shubhamkaushal765/codelens/blob/main/crates/codelens-analyzers/src/public_api_undoc.rs)
+- Severity / supported languages: see `RuleMeta` in source.
 
 ## References
 

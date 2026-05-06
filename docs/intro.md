@@ -15,20 +15,36 @@ See [Dimensions](/concepts/dimensions) for the full list and [Severity and scori
 
 ## Languages supported
 
-| Language                | Status        |
-| ----------------------- | ------------- |
-| Rust                    | full          |
-| Python                  | full          |
-| JavaScript / TypeScript | scaffold-only |
-| Go                      | stub          |
+| Language                | Status | Notes                                           |
+| ----------------------- | ------ | ----------------------------------------------- |
+| Rust                    | full   | `syn`-backed                                    |
+| Python                  | full   | `rustpython-parser`-backed                      |
+| JavaScript / TypeScript | full   | `oxc_parser`; covers `.js/.mjs/.cjs/.jsx/.ts/.mts/.cts/.tsx` |
+| Go                      | stub   | No maintained native Rust Go parser             |
 
 The full table with notes lives at [Install — Language support](/getting-started/install#language-support).
 
+## Rules
+
+25 rules span all five dimensions. Rule IDs use the prefix of their dimension: `MAINT`, `SEC`, `CPLX`, `DOC`, `TEST`. Every finding carries optional CWE and OWASP taxonomy labels; filter with `--cwe` or `--owasp`. Browse the full list under [Rules reference](/rules/).
+
 ## Output formats
 
-codelens renders to a colored terminal report by default, with optional OSC-8 hyperlinks. Pass `--format json` for the stable machine-readable contract, or `--format markdown` for PR-comment-friendly output. SARIF 2.1.0 is stubbed for v2.
+codelens renders to a colored terminal report by default, with optional OSC-8 hyperlinks. Pass `--format json` for the stable machine-readable contract, `--format markdown` for PR-comment-friendly output, or `--format sarif` for GitHub code-scanning integration.
 
 See [Terminal output](/output/terminal) for the default format.
+
+## Scan history and dashboard
+
+Every `codelens analyze` run is saved to `~/.codelens/`. Run `codelens show` to start a local HTTP server and open a browser dashboard with Overview, Scans, Findings, Trends, Diff, Heatmap, and Config tabs. See [`codelens show`](/cli/show).
+
+## Language Server
+
+`codelens lsp` starts a stdio JSON-RPC Language Server. Editors that send `textDocument/didSave` receive `publishDiagnostics` with findings mapped to LSP severity levels. See [LSP integration](/integrations/lsp).
+
+## GitHub Action
+
+A composite action at `action.yml` in the source repo installs codelens, runs analysis, and uploads SARIF results to GitHub code scanning. See [GitHub Action](/integrations/github-action).
 
 ## Extensibility
 

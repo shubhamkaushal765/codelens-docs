@@ -27,17 +27,17 @@ Findings are sorted by `(file, span.start, rule_id)`, so two runs against unchan
 
 ## Anatomy of the scoreboard
 
-After the findings, codelens prints one row per dimension:
+After the findings, codelens prints one row per dimension with a 0–100 score and an A–F letter grade:
 
 ```text
-Maintainability  87.4
-Security         98.1
-Complexity      100.0
-Documentation    73.5
-TestSmell        91.0
+Maintainability  87.4  B
+Security         98.1  A
+Complexity      100.0  A
+Documentation    73.5  C
+TestSmell        91.0  A
 ```
 
-Each score is a `0..=100` value where higher is better. One-line meanings:
+Each score is a `0..=100` value where higher is better. The grade maps score ranges: ≥90 → A, ≥80 → B, ≥70 → C, ≥60 → D, else F. One-line meanings:
 
 | Dimension       | What it means                                                       |
 | --------------- | ------------------------------------------------------------------- |
@@ -49,6 +49,17 @@ Each score is a `0..=100` value where higher is better. One-line meanings:
 
 For the full list of rules per dimension, see [Dimensions](/concepts/dimensions). For the score formula, see [Severity and scoring](/concepts/severity-and-scoring).
 
+## CWE and OWASP labels
+
+Findings that map to industry taxonomy carry `cwe` and `owasp` arrays in JSON output. In the terminal, these appear as short labels at the end of the finding line. Filter findings by taxonomy at the CLI:
+
+```bash
+codelens analyze . --cwe CWE-798
+codelens analyze . --owasp A07:2021
+```
+
+Both flags are repeatable and intersect (a finding must match all specified values).
+
 ## Other output formats
 
 The `--format` flag selects an alternative renderer:
@@ -58,6 +69,7 @@ The `--format` flag selects an alternative renderer:
 | Terminal   | `--format terminal`   | [Terminal](/output/terminal) (default)   |
 | JSON       | `--format json`       | [JSON](/output/json)                     |
 | Markdown   | `--format markdown`   | [Markdown](/output/markdown)             |
+| SARIF      | `--format sarif`      | [SARIF](/output/sarif)                   |
 
 :::tip
 Pipe `--format json` to `jq` for ad-hoc analysis: `codelens analyze . --format json | jq '.findings[] | select(.severity == "high")'`.

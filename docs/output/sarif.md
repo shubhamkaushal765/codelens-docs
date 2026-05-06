@@ -1,38 +1,50 @@
 ---
 title: SARIF output
 sidebar_label: SARIF
-description: SARIF 2.1.0 output is in the v1 spec but not yet implemented. This page tracks status and the planned behaviour.
+description: SARIF 2.1.0 output for GitHub code scanning and other SARIF consumers.
 ---
 
 # SARIF output
 
-SARIF 2.1.0 is part of the v1 specification but is **not yet implemented**. Running with `--format sarif` currently returns an error.
+codelens emits SARIF 2.1.0 via `--format sarif`. Use this format to upload findings to GitHub code scanning or any other SARIF-aware platform.
 
 ```bash
-codelens analyze ./src --format sarif
+codelens analyze ./src --format sarif --output results.sarif
 ```
 
-:::caution
-The above invocation exits with the error:
+## What is emitted
 
-```text
-SARIF formatter not implemented in v1.
+- A single merged `run` object with all findings as `results`.
+- CWE and OWASP taxonomy are emitted as result-level `taxa` (SARIF `taxonomyReferences`).
+- Each finding's `location` maps to a SARIF `physicalLocation` with a `region` (line/column).
+- `rule` objects in `tool.driver.rules` carry the rule ID, short description, and severity.
+
+## GitHub Actions integration
+
+The [GitHub Action](/integrations/github-action) runs SARIF analysis and uploads automatically:
+
+```yaml
+- uses: shubhamkaushal765/codelens@main
+  with:
+    format: "sarif"
+    fail-on: "high"
 ```
-:::
 
-## Why it is stubbed
+For manual upload:
 
-The `codelens-report` crate has a `sarif.rs` module wired into the format dispatch, but it returns `ReportError::NotImplemented`. The blocker is upstream: a stable, well-maintained Rust SARIF schema binding does not yet exist. Rather than ship a hand-rolled emitter that might drift from the spec, the SARIF formatter will land once stable bindings are available.
+```yaml
+- run: codelens analyze . --format sarif --output results.sarif
+  continue-on-error: true
+- uses: github/codeql-action/upload-sarif@v3
+  with:
+    sarif_file: results.sarif
+```
 
-## What to use in the meantime
+## When to prefer JSON
 
-| Goal                                   | Use                                                                                |
-| -------------------------------------- | ---------------------------------------------------------------------------------- |
-| Machine-readable output                | [JSON](./json)                                                                     |
-| GitHub code-scanning ingestion         | Convert JSON to SARIF in CI, or wait for native support                            |
-| Human review                           | [Terminal](./terminal) or [Markdown](./markdown)                                   |
+For programmatic access — extracting findings, gating CI, or aggregating across runs — use [JSON](./json) instead. JSON is the stable contract; SARIF is a presentation format for code-scanning integrations.
 
 ## References
 
 - [SARIF 2.1.0 specification (OASIS)](https://docs.oasis-open.org/sarif/sarif/v2.1.0/sarif-v2.1.0.html)
-- Track progress on the [codelens GitHub issue tracker](https://github.com/shubhamkaushal/codelens/issues)
+- [GitHub code scanning documentation](https://docs.github.com/en/code-security/code-scanning)

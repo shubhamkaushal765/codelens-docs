@@ -15,7 +15,7 @@ A cross-language rule lives in `codelens-analyzers` and operates on `SemanticInd
 
 Create `crates/codelens-analyzers/src/my_rule.rs`. Implement `Analyzer`. Set `supported_languages()` to `SupportedLanguages::All` (or restrict to a subset of `LanguageId`s without importing any language crate). Your `analyze_file` receives a `&ParsedFile` and calls `file.index()` — never `file.native::<T>()`.
 
-Example rule shape (following [`cyclomatic.rs`](https://github.com/shubhamkaushal/codelens/blob/main/crates/codelens-analyzers/src/cyclomatic.rs)):
+Example rule shape (following [`cyclomatic.rs`](https://github.com/shubhamkaushal765/codelens/blob/main/crates/codelens-analyzers/src/cyclomatic.rs)):
 
 ```rust
 pub struct MyRuleAnalyzer;
@@ -36,7 +36,7 @@ impl Analyzer for MyRuleAnalyzer {
 
 ### Step 2 — Register in `builtin()`
 
-Register in [`codelens-analyzers/src/lib.rs`](https://github.com/shubhamkaushal/codelens/blob/main/crates/codelens-analyzers/src/lib.rs):
+Register in [`codelens-analyzers/src/lib.rs`](https://github.com/shubhamkaushal765/codelens/blob/main/crates/codelens-analyzers/src/lib.rs):
 
 ```rust
 pub fn builtin() -> Vec<Box<dyn Analyzer>> {
@@ -49,7 +49,7 @@ pub fn builtin() -> Vec<Box<dyn Analyzer>> {
 }
 ```
 
-The CLI's `build_registry` loop picks it up automatically — no CLI edit needed.
+The `build_registry()` function in `codelens-registry` calls `builtin()` and picks up the new analyzer automatically — no CLI or LSP edit needed.
 
 ### Step 3 — Assign a `rule_id`
 
@@ -92,7 +92,7 @@ impl Analyzer for MyLangRuleAnalyzer {
 }
 ```
 
-See [`unsafe_block.rs`](https://github.com/shubhamkaushal/codelens/blob/main/crates/codelens-lang-rust/src/analyzers/unsafe_block.rs) for the complete Rust example.
+See [`unsafe_block.rs`](https://github.com/shubhamkaushal765/codelens/blob/main/crates/codelens-lang-rust/src/analyzers/unsafe_block.rs) for the complete Rust example.
 
 ### Step 2 — Register in the language crate
 
