@@ -16,10 +16,10 @@ const config: Config = {
   },
 
   // Set the production url of your site here
-  url: 'https://shubhamkaushal765.github.io',
+  url: 'https://www.codelens.com',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
-  baseUrl: '/codelens-docs/',
+  baseUrl: '/',
 
   // GitHub pages deployment config.
   organizationName: 'shubhamkaushal765',
