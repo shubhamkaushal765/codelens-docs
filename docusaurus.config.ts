@@ -8,7 +8,7 @@ const config: Config = {
   title: 'codelens',
   tagline:
     'Static code analysis for Rust, Python, and JavaScript/TypeScript with structured, multi-dimensional findings.',
-  favicon: 'img/favicon.ico',
+  favicon: 'img/logo.svg',
 
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
   future: {

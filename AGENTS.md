@@ -48,7 +48,7 @@ The codelens source repo is the canonical source of truth: `/home/user/codelens/
 
 | Asset | Location |
 | ----- | -------- |
-| Logo mark (aperture/lens SVG) | `static/img/logo.svg` |
+| Logo mark (aperture/lens SVG) — also used as favicon | `static/img/logo.svg` |
 | Hero pipeline illustration | `static/img/codelens-flow.svg` |
 | Anatomy of a finding (terminal output) | `static/img/finding-anatomy.svg` |
 | Reusable React SVG diagrams | `src/components/diagrams/` (see [.agent/ARCHITECTURE.md](./.agent/ARCHITECTURE.md#diagrams)) |

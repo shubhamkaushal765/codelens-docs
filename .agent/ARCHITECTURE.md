@@ -42,11 +42,10 @@ codelens-docs/
 │   └── css/custom.css          # global theme — full 60-30-10 semantic token system
 ├── static/
 │   └── img/
-│       ├── logo.svg            # aperture/lens mark (primary #1a4480, accent #9a6200)
+│       ├── logo.svg            # aperture/lens mark (primary #1a4480, accent #9a6200) — also served as the favicon
 │       ├── logo-dark.svg       # dark-mode logo variant
 │       ├── codelens-flow.svg   # hero pipeline illustration
-│       ├── finding-anatomy.svg # labelled terminal-finding illustration (reading-output)
-│       └── favicon.ico
+│       └── finding-anatomy.svg # labelled terminal-finding illustration (reading-output)
 └── build/                      # build output (gitignored)
 ```
 
