@@ -1,41 +1,26 @@
 ---
 title: JSON output
 sidebar_label: JSON
-description: How to produce machine-readable JSON reports from codelens, with a stable schema for CI and tooling integration.
+description: Feed codelens findings into CI scripts, dashboards, or other tools using the stable JSON report format.
 ---
 
 # JSON output
 
-JSON is the **stable machine contract** for codelens. Use it whenever another tool or script needs to consume analysis results.
+Use JSON output when another tool, script, or CI step needs to consume codelens results. The JSON report has a stable schema — field names and sort order are guaranteed not to change without a `schema_version` bump.
 
 ```bash
 codelens analyze ./src --format json
 ```
 
-To write the report to disk instead of stdout, add `--output`:
+To write the report to a file instead of stdout:
 
 ```bash
 codelens analyze ./src --format json --output report.json
 ```
 
-## Stability
+## Example output
 
-| Property         | Value                                                                              |
-| ---------------- | ---------------------------------------------------------------------------------- |
-| Pretty-printed   | Always (two-space indent)                                                          |
-| Field order      | Stable; documented per object                                                      |
-| `schema_version` | Integer; current value is `2`. Bumped on any breaking change to the report shape. |
-| Sort order       | Findings sorted by `(file, span.start, rule_id)`                                   |
-
-For the full reference — every field, every constraint, every example — see [JSON schema](./json-schema).
-
-:::note
-Findings are sorted by `(file, span.start, rule_id)` — output is byte-for-byte deterministic given the same input. This makes JSON reports safe to diff in CI.
-:::
-
-## Example
-
-A minimal report with a single finding:
+A minimal report with one finding:
 
 ```json
 {
@@ -86,12 +71,25 @@ A minimal report with a single finding:
 }
 ```
 
-## Consuming the JSON
+## Filtering with jq
 
 Any JSON-aware tool works. `jq` is convenient for ad-hoc filtering:
 
 ```bash
+# Show only critical findings
 codelens analyze ./src --format json | jq '.findings[] | select(.severity == "critical")'
+
+# Count findings by severity
+codelens analyze ./src --format json | jq '[.findings[].severity] | group_by(.) | map({(.[0]): length}) | add'
 ```
 
-For full field definitions, severity weights, and the scoring formula, continue to the [JSON schema reference](./json-schema).
+## Stability guarantees
+
+| Property         | Value                                                                                       |
+| ---------------- | ------------------------------------------------------------------------------------------- |
+| Pretty-printed   | Always (two-space indent)                                                                   |
+| Field order      | Stable; documented per object                                                               |
+| `schema_version` | Integer; current value is `2`. New optional fields are added without bumping it; we only bump on breaking changes. |
+| Sort order       | Findings sorted by `(file, span.start, rule_id)` — deterministic given the same input, safe to diff in CI |
+
+For the complete field-by-field reference — every property, constraint, severity weights, and the scoring formula — see [JSON schema](./json-schema).

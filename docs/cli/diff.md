@@ -1,6 +1,6 @@
 ---
 title: codelens diff
-description: Finding-level diff between two codelens JSON reports or saved scan IDs.
+description: Compare two codelens scans to see which findings are new, resolved, or still present.
 ---
 
 # codelens diff
@@ -9,7 +9,13 @@ description: Finding-level diff between two codelens JSON reports or saved scan 
 codelens diff <FROM> <TO>
 ```
 
-Compares two analysis results and prints which findings are new, resolved, or persisting. Both arguments can be paths to JSON report files or scan IDs stored in `~/.codelens/` history.
+Use `codelens diff` to compare two analysis results and see exactly what changed: which findings are new, which were resolved, and which are still present. Both arguments can be paths to JSON report files saved with `codelens analyze --format json`, or scan IDs from your saved scan history.
+
+## When to use this
+
+- Review the quality impact of a pull request before merging.
+- Confirm that a fix actually resolved a reported finding.
+- Detect regressions between two releases or branches.
 
 ```mermaid
 flowchart TD
@@ -42,14 +48,14 @@ The diff groups findings into three sets:
 | `resolved`   | Findings in `<FROM>` but not in `<TO>` (fixed or removed) |
 | `persisting` | Findings present in both reports                          |
 
-Two findings are considered the same if they share the same `rule_id` and `location.file`. Byte-span matching handles minor line-number drift.
+Two findings are considered the same if they share the same rule ID and file. Minor line-number drift (e.g. from reformatting) does not cause a finding to appear as new.
 
-## Flags
+## Options
 
-| Flag            | Default    | Description                        |
-| --------------- | ---------- | ---------------------------------- |
-| `--format json` | `terminal` | Output diff as JSON.               |
-| `-h`, `--help`  |            | Print help.                        |
+| Flag                | Default    | Description                        |
+| ------------------- | ---------- | ---------------------------------- |
+| `--format <FORMAT>` | `terminal` | Output format: `terminal` or `json`. |
+| `-h`, `--help`      |            | Print help.                        |
 
 ## Examples
 
@@ -59,7 +65,7 @@ Diff two saved JSON files:
 codelens diff baseline.json current.json
 ```
 
-Diff the two most-recent saved scans for a project (using scan IDs from `codelens show`):
+Diff two saved scans using their IDs (visible in the dashboard or `codelens show`):
 
 ```bash
 codelens diff <scan-id-1> <scan-id-2>

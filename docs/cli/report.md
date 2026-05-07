@@ -1,6 +1,6 @@
 ---
 title: codelens report
-description: Re-render a saved codelens JSON report in a different output format.
+description: Convert a saved codelens JSON report to Markdown, SARIF, or terminal output without re-scanning.
 ---
 
 # codelens report
@@ -9,15 +9,21 @@ description: Re-render a saved codelens JSON report in a different output format
 codelens report <INPUT> [OPTIONS]
 ```
 
-Reads a saved JSON report and re-renders it in the chosen format. Use this to convert a stored `.json` file to Markdown, SARIF, or terminal output without re-running the analysis.
+Use `codelens report` to re-render a previously saved JSON report in a different format. This lets you produce Markdown summaries, upload SARIF to a security dashboard, or view a historical result in the terminal — all without running a new scan.
+
+## When to use this
+
+- Convert a CI-generated JSON report to Markdown for a pull request comment.
+- Produce a SARIF file from a saved scan for upload to GitHub Advanced Security or another SAST platform.
+- View an archived report in a more readable format.
 
 ## Arguments
 
 | Argument  | Description                                                       |
 | --------- | ----------------------------------------------------------------- |
-| `<INPUT>` | Path to a `codelens analyze --format json` output file. Required. |
+| `<INPUT>` | Path to a JSON file saved by `codelens analyze --format json`. Required. |
 
-## Flags
+## Options
 
 | Flag                | Type                                          | Default    | Description                                 |
 | ------------------- | --------------------------------------------- | ---------- | ------------------------------------------- |
@@ -27,19 +33,25 @@ Reads a saved JSON report and re-renders it in the chosen format. Use this to co
 
 ## Examples
 
-Re-render a saved JSON report as Markdown:
+View a saved report in the terminal:
+
+```bash
+codelens report report.json
+```
+
+Convert to Markdown:
 
 ```bash
 codelens report report.json --format markdown
 ```
 
-Convert JSON to SARIF for upload:
+Convert to SARIF and save to a file:
 
 ```bash
 codelens report report.json --format sarif --output results.sarif
 ```
 
-Post a historical report as a GitHub PR comment:
+Post a Markdown summary as a GitHub PR comment:
 
 ```bash
 codelens report report.json --format markdown | gh pr comment --body-file -

@@ -1,35 +1,35 @@
 ---
 title: Reading the output
-description: Anatomy of a codelens terminal finding and the closing dimension scoreboard.
+description: Understand codelens findings and dimension scores so you can act on results quickly.
 ---
 
 # Reading the output
 
-The default terminal format groups findings by dimension and severity, then prints a closing scoreboard. This page walks the anatomy of each piece.
+The default terminal report has two parts: a list of findings, then a closing scoreboard. Here's how to read both.
 
-## Anatomy of a finding
+## What a finding looks like
 
 ![Anatomy of a finding](/img/finding-anatomy.svg)
 
-Each finding occupies two short lines:
+Each finding takes two lines:
 
 ```text
 [MAINT001-cyclomatic] medium  src/lib.rs:42:1
   function `process_request` has cyclomatic complexity 14 (threshold 10)
 ```
 
-| Element        | Meaning                                                                       |
-| -------------- | ----------------------------------------------------------------------------- |
-| `MAINT001-...` | The `rule_id` — stable across releases, used in baselines and config          |
-| `medium`       | The finding's severity (`info`, `low`, `medium`, `high`, `critical`)          |
-| `src/lib.rs:…` | File path and 1-indexed line:column of the finding's start                    |
-| message line   | Human-readable description from the analyzer                                  |
+| Part           | What it tells you                                                        |
+| -------------- | ------------------------------------------------------------------------ |
+| `MAINT001-...` | The rule ID — stable across releases, used in config and baselines       |
+| `medium`       | Severity: `info`, `low`, `medium`, `high`, or `critical`                 |
+| `src/lib.rs:…` | File path and line:column where the issue starts                         |
+| Message line   | Plain-English description of the problem                                 |
 
-Findings are sorted by `(file, span.start, rule_id)`, so two runs against unchanged source produce byte-identical output.
+Findings are sorted by file, then line, then rule ID, so two scans of unchanged code produce identical output.
 
-## Anatomy of the scoreboard
+## What the scoreboard means
 
-After the findings, codelens prints one row per dimension with a 0–100 score and an A–F letter grade:
+After the findings, codelens prints one row per dimension:
 
 ```text
 Maintainability  87.4  B
@@ -39,40 +39,47 @@ Documentation    73.5  C
 TestSmell        91.0  A
 ```
 
-Each score is a `0..=100` value where higher is better. The grade maps score ranges: ≥90 → A, ≥80 → B, ≥70 → C, ≥60 → D, else F. One-line meanings:
+Scores run from 0 to 100 — higher is better. The letter grade maps score ranges: A (90–100), B (80–89), C (70–79), D (60–69), F (below 60).
 
-| Dimension       | What it means                                                       |
-| --------------- | ------------------------------------------------------------------- |
-| Maintainability | How easy the code is to read and change                             |
-| Security        | Patterns commonly exploited by attackers                            |
-| Complexity      | Project-level structural complexity (fan-out, cycles)               |
-| Documentation   | Public-API doc coverage and TODO/FIXME inventory                    |
-| TestSmell       | Quality of the tests themselves                                     |
+| Dimension       | What it measures                                          |
+| --------------- | --------------------------------------------------------- |
+| Security        | Patterns commonly exploited by attackers                  |
+| Maintainability | How easy the code is to read and change                   |
+| Complexity      | Project-level structural complexity (fan-out, cycles)     |
+| Documentation   | Public-API doc coverage and TODO/FIXME inventory          |
+| TestSmell       | Quality of the tests themselves                           |
 
-For the full list of rules per dimension, see [Dimensions](/concepts/dimensions). For the score formula, see [Severity and scoring](/concepts/severity-and-scoring).
+For the full rule list per dimension see [Dimensions](/concepts/dimensions). For the scoring formula see [Severity and scoring](/concepts/severity-and-scoring).
 
-## CWE and OWASP labels
+## Filter by security taxonomy
 
-Findings that map to industry taxonomy carry `cwe` and `owasp` arrays in JSON output. In the terminal, these appear as short labels at the end of the finding line. Filter findings by taxonomy at the CLI:
+Findings that map to industry vulnerability taxonomies carry CWE and OWASP labels. You can filter to just those findings at the command line:
 
 ```bash
+# Show only findings tagged CWE-798 (hardcoded credentials)
 codelens analyze . --cwe CWE-798
+
+# Show only findings in the OWASP A07:2021 category
 codelens analyze . --owasp A07:2021
 ```
 
-Both flags are repeatable and intersect (a finding must match all specified values).
+Both flags are repeatable. When you combine them, a finding must match all specified values to appear.
 
-## Other output formats
+## Choose an output format
 
-The `--format` flag selects an alternative renderer:
+The `--format` flag switches the renderer:
 
-| Format     | Flag                  | Reference                                |
-| ---------- | --------------------- | ---------------------------------------- |
-| Terminal   | `--format terminal`   | [Terminal](/output/terminal) (default)   |
-| JSON       | `--format json`       | [JSON](/output/json)                     |
-| Markdown   | `--format markdown`   | [Markdown](/output/markdown)             |
-| SARIF      | `--format sarif`      | [SARIF](/output/sarif)                   |
+| Format   | Flag                  | Best for                                       | Reference                              |
+| -------- | --------------------- | ---------------------------------------------- | -------------------------------------- |
+| Terminal | `--format terminal`   | Local development (default)                    | [Terminal](/output/terminal)           |
+| JSON     | `--format json`       | Scripts, tooling, custom dashboards            | [JSON](/output/json)                   |
+| Markdown | `--format markdown`   | PR comments                                    | [Markdown](/output/markdown)           |
+| SARIF    | `--format sarif`      | GitHub code scanning                           | [SARIF](/output/sarif)                 |
 
 :::tip
-Pipe `--format json` to `jq` for ad-hoc analysis: `codelens analyze . --format json | jq '.findings[] | select(.severity == "high")'`.
+Use `--format json` with `jq` to filter findings ad hoc:
+
+```bash
+codelens analyze . --format json | jq '.findings[] | select(.severity == "high")'
+```
 :::

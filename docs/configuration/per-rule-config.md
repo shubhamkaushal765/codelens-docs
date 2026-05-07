@@ -1,24 +1,64 @@
 ---
 title: Per-rule configuration
-description: Configure individual rules with [rules.<rule_id>] tables — enable, severity, and rule-specific knobs.
+description: Silence noisy rules, adjust severities, and tune thresholds — without touching rules you want to leave at their defaults.
 ---
 
 # Per-rule configuration
 
-Every rule registered with `codelens` has a stable `rule_id` (for example `MAINT001-cyclomatic`). To configure a rule, add a `[rules.<rule_id>]` table to your `codelens.toml`.
+Tune individual rules without touching the rest. Use a `[rules.<rule_id>]` table in `codelens.toml` for any rule you want to change. Every rule has a stable ID (for example `MAINT001-cyclomatic`) that you use as the table name.
 
-## Universal keys
+## Common tasks
 
-These two keys work on every rule:
+### Disable a rule entirely
+
+When a rule isn't relevant to your project, turn it off completely. Disabled rules produce no findings — they do not appear in the report and are not counted by `--fail-on`.
+
+```toml
+[rules.DOC002-todo-fixme]
+enabled = false
+```
+
+### Keep a rule visible without blocking CI
+
+If you want findings reported but don't want them to fail CI, lower the severity so it falls below your `--fail-on` threshold:
+
+```toml
+[rules.MAINT003-fn-length]
+severity = "low"
+```
+
+With `--fail-on high`, this rule still shows up in the report, but never fails the build. Use `severity = "info"` to keep findings visible with zero CI impact.
+
+### Raise a rule's severity
+
+```toml
+[rules.SEC001-hardcoded-secret]
+severity = "critical"
+```
+
+### Adjust a numeric threshold
+
+Some rules fire when a measured value crosses a threshold. Raise or lower the threshold to match your codebase's conventions:
+
+```toml
+[rules.MAINT001-cyclomatic]
+threshold = 15
+```
+
+:::note
+`enabled = false` is different from `severity = "info"`. With `enabled = false`, the rule's findings are completely absent — no report entry, no score impact, no `--fail-on` consideration. With `severity = "info"`, findings still appear in the report, but contribute zero weight to the dimension score.
+:::
+
+## Keys available on every rule
 
 | Key        | Type   | Default        | Description                                                            |
 | ---------- | ------ | -------------- | ---------------------------------------------------------------------- |
 | `enabled`  | bool   | `true`         | Turn the rule off entirely.                                            |
 | `severity` | string | rule's default | Override severity. One of `info`, `low`, `medium`, `high`, `critical`. |
 
-## Rule-specific knobs
+## Rules with additional options
 
-Some rules accept additional keys. The table below lists every rule that exposes a knob beyond the universal pair. Rules not listed here only accept `enabled` and `severity`.
+These rules accept a `threshold` key in addition to `enabled` and `severity`. Rules not listed here only accept `enabled` and `severity`.
 
 | Rule ID                 | Knob        | Default | Description                                              |
 | ----------------------- | ----------- | ------- | -------------------------------------------------------- |
@@ -27,34 +67,7 @@ Some rules accept additional keys. The table below lists every rule that exposes
 | `MAINT004-file-length`  | `threshold` | `600`   | Maximum file length in lines.                            |
 | `MAINT005-deep-nesting` | `threshold` | `4`     | Maximum block-nesting depth.                             |
 
-Cross-reference each rule's page under [Rules reference](/rules) for the full semantics — what is counted, how it is counted, and per-language notes.
-
-## Examples
-
-Disable a rule:
-
-```toml
-[rules.DOC002-todo-fixme]
-enabled = false
-```
-
-Lower the severity of a noisy rule so it still reports but does not gate CI when you set `--fail-on high`:
-
-```toml
-[rules.MAINT003-fn-length]
-severity = "low"
-```
-
-Raise the cyclomatic-complexity threshold for a codebase with intentionally long match statements:
-
-```toml
-[rules.MAINT001-cyclomatic]
-threshold = 15
-```
-
-:::note
-`enabled = false` excludes the rule's findings entirely — they do not appear in the report, do not affect any dimension's score, and are not counted by `--fail-on`. Use `severity = "info"` if you want the findings visible without gating CI.
-:::
+For what each rule measures and any per-language notes, see the [Rules reference](/rules).
 
 ## See also
 

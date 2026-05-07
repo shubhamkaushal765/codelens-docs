@@ -1,12 +1,12 @@
 ---
 title: SARIF output
 sidebar_label: SARIF
-description: SARIF 2.1.0 output for GitHub code scanning and other SARIF consumers.
+description: Upload codelens findings to GitHub code scanning, Azure DevOps, or any other SARIF-compatible security platform.
 ---
 
 # SARIF output
 
-codelens emits SARIF 2.1.0 via `--format sarif`. Use this format to upload findings to GitHub code scanning or any other SARIF-aware platform.
+Use SARIF output to feed codelens findings into a security platform. SARIF (Static Analysis Results Interchange Format) is an open standard that GitHub code scanning, Azure DevOps, and many other tools accept natively. Uploading a SARIF file lets those platforms annotate pull requests, track findings over time, and manage alerts in their security dashboards.
 
 ```bash
 codelens analyze ./src --format sarif --output results.sarif
@@ -14,14 +14,16 @@ codelens analyze ./src --format sarif --output results.sarif
 
 ## What is emitted
 
-- A single merged `run` object with all findings as `results`.
-- CWE and OWASP taxonomy are emitted as result-level `taxa` (SARIF `taxonomyReferences`).
-- Each finding's `location` maps to a SARIF `physicalLocation` with a `region` (line/column).
-- `rule` objects in `tool.driver.rules` carry the rule ID, short description, and severity.
+codelens produces a SARIF 2.1.0 document containing:
+
+- A single `run` object with all findings as `results`.
+- CWE and OWASP taxonomy references attached to each relevant result.
+- Each finding's location mapped to a SARIF `physicalLocation` with line and column.
+- `rule` objects in `tool.driver.rules` carrying the rule ID, short description, and severity.
 
 ## GitHub Actions integration
 
-The [GitHub Action](/integrations/github-action) runs SARIF analysis and uploads automatically:
+The [GitHub Action](/integrations/github-action) handles SARIF analysis and upload automatically:
 
 ```yaml
 - uses: shubhamkaushal765/codelens@main
@@ -30,7 +32,7 @@ The [GitHub Action](/integrations/github-action) runs SARIF analysis and uploads
     fail-on: "high"
 ```
 
-For manual upload:
+For manual upload — useful when you want more control over which step runs codelens and which uploads the results:
 
 ```yaml
 - run: codelens analyze . --format sarif --output results.sarif
@@ -40,9 +42,11 @@ For manual upload:
     sarif_file: results.sarif
 ```
 
+`continue-on-error: true` on the codelens step ensures the upload step still runs even when `--fail-on` triggers a non-zero exit.
+
 ## When to prefer JSON
 
-For programmatic access — extracting findings, gating CI, or aggregating across runs — use [JSON](./json) instead. JSON is the stable contract; SARIF is a presentation format for code-scanning integrations.
+For programmatic access — extracting findings, gating CI, or aggregating across runs — use [JSON](./json) instead. JSON is the stable contract; SARIF is a presentation format designed for code-scanning platform integrations.
 
 ## References
 

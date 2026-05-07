@@ -1,41 +1,47 @@
 ---
 title: Severity and scoring
-description: The five severity levels, their weights, and the per-dimension 0–100 score formula.
+description: How severity levels map to score penalties, and how to read the 0–100 per-dimension score.
 ---
 
 import SeverityWeights from '@site/src/components/diagrams/SeverityWeights';
 
 # Severity and scoring
 
-Every finding has a severity. Severities have integer weights, weights are summed per dimension, the sum is normalized by project size, and the dimension score is `100 - penalty`.
+*Severity* tells you how serious a single finding is. *Score* tells you how clean a dimension is overall, across your whole project.
 
-## Severity weights
+## Severity levels
 
 <SeverityWeights />
 
-| Severity   | Weight |
-| ---------- | ------ |
-| `info`     | 0      |
-| `low`      | 1      |
-| `medium`   | 4      |
-| `high`     | 12     |
-| `critical` | 30     |
+| Severity   | Weight | What it means                                                                 |
+| ---------- | ------ | ----------------------------------------------------------------------------- |
+| `info`     | 0      | Informational only — appears in the report but does not lower your score      |
+| `low`      | 1      | Minor issue, worth fixing but not urgent                                      |
+| `medium`   | 4      | Noticeable quality problem; plan to address it                                |
+| `high`     | 12     | Significant issue that should be fixed before shipping                        |
+| `critical` | 30     | Severe risk — fix this immediately                                            |
 
-`info` findings have weight 0 — they appear in the report but do not change the score.
+The weight values matter because they feed directly into the score formula below.
 
-## Score formula
+## How scores are calculated
 
-For each dimension:
+Each dimension gets a score from 0 to 100. A higher score means cleaner code. codelens calculates it like this:
+
+1. Add up the weights of all findings in that dimension.
+2. Divide by your project's size in thousands of lines of code, so a large project is not unfairly penalized for having more findings than a small one.
+3. Subtract the result from 100, clamped so the score never goes below 0.
 
 ```text
-weighted_sum = Σ weights[finding.severity]      (over findings in this dimension)
+weighted_sum = sum of weights for all findings in this dimension
 penalty      = clamp(weighted_sum / max(kloc, 1), 0, 100)
 score        = 100 - penalty
 ```
 
-Where `kloc` is the project's effective lines of code in supported languages. In v1 `kloc` is computed from total source bytes divided by 80; this heuristic will be replaced with a real line counter in a future release.
+The clamping step means a single file with many severe findings cannot drag an entire dimension to zero on its own — the penalty is always scaled against project size.
 
-The score is a `f32` clamped to `0..=100`. Higher is better.
+:::note
+`kloc` is your project's effective lines of code in supported languages. In v1, codelens estimates this from total source bytes divided by 80. A real line counter will replace this heuristic in a future release.
+:::
 
 ## Worked example
 
@@ -53,13 +59,22 @@ security     = 100 - 13.2 = 86.8
 
 The Security score is **86.8**.
 
-:::note
-Custom dimensions (via the `Custom` variant on `Dimension`) work the same way — the formula does not special-case the five built-in dimensions.
-:::
+## Setting CI thresholds
 
-## Tuning per rule
+You can tell codelens to fail a CI run when any dimension score drops below a threshold:
 
-Per-rule severity overrides live in `codelens.toml`:
+```toml
+# codelens.toml
+[thresholds]
+security = 80
+maintainability = 70
+```
+
+See [Baselines and fail-on](/configuration/baselines-and-fail-on) for the full set of options.
+
+## Overriding severity for a specific rule
+
+If a rule's default severity does not match your project's risk profile, you can override it in `codelens.toml`:
 
 ```toml
 [rules.SEC001-hardcoded-secret]

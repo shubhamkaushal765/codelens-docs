@@ -1,6 +1,6 @@
 ---
 title: codelens lsp
-description: Start the codelens Language Server Protocol server on stdio for editor integration.
+description: Start the codelens LSP server to get inline diagnostics in VS Code, Neovim, and other editors.
 ---
 
 # codelens lsp
@@ -9,58 +9,52 @@ description: Start the codelens Language Server Protocol server on stdio for edi
 codelens lsp
 ```
 
-Starts a Language Server Protocol (LSP) server on stdin/stdout. Editors and LSP clients connect to the server and receive `publishDiagnostics` notifications when files are opened or saved.
+Use `codelens lsp` to get codelens findings as inline diagnostics inside your editor. Once configured, your editor shows findings as warnings and errors directly in the file you are editing — no terminal required. The server re-analyzes each file when you open or save it.
+
+## When to use this
+
+- See findings inline while you write code, without leaving your editor.
+- Get severity-colour-coded warnings (error, warning, info, hint) using your editor's standard diagnostic UI.
+- Use as an alternative to `codelens watch` if your editor supports LSP.
+
+## How it works
 
 ```mermaid
 sequenceDiagram
     participant E as Editor
-    participant L as codelens-lsp
-    participant N as Engine
-
-    E->>L: initialize
-    L-->>E: capabilities
-    E->>L: textDocument/didOpen
-    L->>N: analyze_path(file)
-    N-->>L: findings
-    L-->>E: publishDiagnostics
-    E->>L: textDocument/didSave
-    L->>N: analyze_path(file)
-    N-->>L: findings
-    L-->>E: publishDiagnostics
-    E->>L: shutdown
+    participant L as codelens lsp
+    E->>L: open file
+    L-->>E: publish diagnostics
+    E->>L: save file
+    L-->>E: publish updated diagnostics
+    E->>L: close / shutdown
     L-->>E: ok
 ```
 
-## Protocol
+The server communicates over stdin/stdout using standard LSP JSON-RPC. Configure your editor to launch `codelens lsp` as the server command; the editor handles the connection automatically.
 
-The server is hand-rolled (no `tower-lsp` dependency) and implements a minimum-viable LSP surface:
+## Supported LSP messages
 
-| Message                           | Behaviour                                                                 |
-| --------------------------------- | ------------------------------------------------------------------------- |
-| `initialize`                      | Returns server capabilities.                                              |
-| `initialized`                     | Acknowledged; no action.                                                  |
-| `textDocument/didOpen`            | Runs `Engine::analyze_path` against the file URI; publishes diagnostics.  |
-| `textDocument/didSave`            | Re-runs analysis; publishes updated diagnostics.                          |
-| `textDocument/didChange`          | Re-runs analysis on the changed file; publishes updated diagnostics.      |
-| `shutdown` / `exit`               | Graceful shutdown.                                                        |
-
-JSON-RPC framing uses standard `Content-Length` headers.
+| Editor action           | What happens                                               |
+| ----------------------- | ---------------------------------------------------------- |
+| Open a file             | codelens analyzes the file and sends diagnostics.          |
+| Save a file             | codelens re-analyzes the file and updates diagnostics.     |
+| Edit a file             | codelens re-analyzes on each change and updates diagnostics.|
+| Close the editor        | Server shuts down cleanly.                                 |
 
 ## Severity mapping
 
-codelens finding severities map to LSP diagnostic severities:
+codelens severities appear in your editor using the standard diagnostic levels:
 
-| codelens severity | LSP severity    |
-| ----------------- | --------------- |
-| `critical`        | Error (1)       |
-| `high`            | Error (1)       |
-| `medium`          | Warning (2)     |
-| `low`             | Information (3) |
-| `info`            | Hint (4)        |
+| codelens severity | Editor diagnostic level |
+| ----------------- | ----------------------- |
+| `critical`        | Error                   |
+| `high`            | Error                   |
+| `medium`          | Warning                 |
+| `low`             | Information             |
+| `info`            | Hint                    |
 
 ## Editor setup
-
-The server reads from stdin and writes to stdout — configure your editor's LSP client to launch `codelens lsp` as the server command.
 
 ### Neovim (via nvim-lspconfig)
 
@@ -81,12 +75,16 @@ vim.api.nvim_create_autocmd("FileType", {
 
 ### VS Code
 
-Use the generic [LSP client extension](https://marketplace.visualstudio.com/items?itemName=llvm-vs-code-extensions.vscode-clangd) or write a minimal extension that spawns `codelens lsp`.
+Install the [codelens VS Code extension](https://marketplace.visualstudio.com/search?term=codelens&target=VSCode) if available, or configure any generic LSP client extension to launch `codelens lsp` as the server command. Point the extension at the languages you want covered (`rust`, `python`, `javascript`, `typescript`).
+
+### Other editors
+
+Any editor with LSP support (Helix, Emacs with `lsp-mode` or `eglot`, Sublime Text with `LSP`) can use `codelens lsp`. Set the server command to `codelens lsp` and configure it for the file types you want.
 
 ## Known limitations
 
-- Each save triggers a full re-analysis of the file. The incremental cache from the CLI is not wired in; LSP runs are cold engine runs.
-- No workspace symbols, no code actions, no hover. Minimum-viable diagnostics only.
+- Each save triggers a full re-analysis of that file. The incremental cache used by `codelens analyze` is not active during LSP sessions.
+- No code actions, no hover documentation, no workspace symbols. The server provides diagnostics only.
 
 ## See also
 

@@ -1,12 +1,12 @@
 ---
 title: Markdown output
 sidebar_label: Markdown
-description: PR-friendly Markdown reports with a top-level scoreboard and collapsible details, suited for posting on GitHub pull requests.
+description: Post codelens findings as a formatted pull request comment — a scoreboard table plus collapsible per-dimension details.
 ---
 
 # Markdown output
 
-The Markdown format is designed for posting analysis results as a comment on a pull request. It renders cleanly on GitHub, GitLab, and most other platforms that support GitHub-flavoured Markdown.
+Use Markdown output to post analysis results as a comment on a pull request. It renders cleanly on GitHub, GitLab, and most other platforms that support GitHub-flavoured Markdown.
 
 ```bash
 codelens analyze ./src --format md
@@ -18,17 +18,9 @@ Both `md` and `markdown` are accepted:
 codelens analyze ./src --format markdown --output report.md
 ```
 
-## Layout
+## What the rendered output looks like
 
-| Section          | Form                                                       |
-| ---------------- | ---------------------------------------------------------- |
-| Top-level title  | `# codelens report`                                        |
-| Scoreboard       | A table with one row per dimension and a final score      |
-| Per-dimension    | A `<details>` block, collapsed by default, with findings  |
-
-The collapsible `<details>` blocks keep the comment short by default and let reviewers expand only the dimensions they care about.
-
-## Example
+The report starts with a scoreboard table, followed by one collapsible block per dimension. Reviewers can expand only the dimensions they care about — the rest stay collapsed and keep the comment short.
 
 ````markdown
 # codelens report
@@ -50,6 +42,16 @@ The collapsible `<details>` blocks keep the comment short by default and let rev
 
 </details>
 ````
+
+## Layout
+
+| Section         | Form                                                      |
+| --------------- | --------------------------------------------------------- |
+| Top-level title | `# codelens report`                                       |
+| Scoreboard      | A table with one row per dimension                        |
+| Per-dimension   | A `<details>` block, collapsed by default, with findings  |
+
+## Post directly to a pull request
 
 :::tip
 Pipe directly to `gh pr comment` to post the report on the current PR:

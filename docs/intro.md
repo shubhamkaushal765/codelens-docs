@@ -1,21 +1,26 @@
 ---
 title: Introduction
-description: What codelens is and why static analysis with multi-dimensional scores beats single-axis lint.
+description: Find security issues, flag quality regressions in CI, and get inline diagnostics in your editor — across Rust, Python, and JS/TS.
 ---
 
 import PipelineDiagram from '@site/src/components/diagrams/PipelineDiagram';
 
 # Introduction
 
-codelens is a Rust workspace that statically analyzes source code across Rust, Python, and JavaScript/TypeScript and emits structured findings on five quality dimensions. It runs as a single CLI binary, parallelizes parsing and analysis with `rayon`, and produces deterministic output suited to both terminals and CI pipelines.
+codelens scans your source code and tells you what's wrong across five quality dimensions: security, maintainability, complexity, documentation, and test quality. Run it locally to catch issues before you commit, in CI to gate on quality scores, or in your editor to see findings inline as you type.
 
 <PipelineDiagram />
 
-## Why multiple dimensions
+## What you can do with codelens
 
-Tools like clippy, eslint, and pylint return a flat list of warnings. A reviewer or CI gate has to weigh "missing docstring" the same way it weighs "hardcoded AWS key" unless they hand-curate severities. codelens groups findings into five named dimensions — maintainability, security, complexity, documentation, and test smell — and emits an independent 0–100 score per dimension. CI can gate on individual dimensions (for example, fail the build if `security` drops below 95 but allow `documentation` to slip).
+- **Catch security issues early.** codelens flags hardcoded secrets, unsafe patterns, and common vulnerability classes (CWE/OWASP labeled) before they reach production.
+- **Gate CI on code quality.** Fail a build if the security score drops below 95 while letting documentation slip — each dimension has its own 0–100 score that you can threshold independently.
+- **Track trends over time.** Every scan is saved locally. Run `codelens show` to open a dashboard with Trends, Diff, and Heatmap views so you can see whether quality is improving sprint-over-sprint.
+- **Get inline diagnostics in your editor.** `codelens lsp` integrates with any LSP-compatible editor and surfaces findings as you save files.
 
-See [Dimensions](/concepts/dimensions) for the full list and [Severity and scoring](/concepts/severity-and-scoring) for the formula.
+## Five quality dimensions
+
+Instead of a flat list of warnings, codelens groups every finding into one of five named dimensions and gives each an independent score:
 
 ```mermaid
 flowchart LR
@@ -24,44 +29,47 @@ flowchart LR
     FND --> SC[dimension score\n0–100]
 ```
 
+| Dimension       | What it measures                                          |
+| --------------- | --------------------------------------------------------- |
+| Security        | Patterns commonly exploited by attackers                  |
+| Maintainability | How easy the code is to read and change                   |
+| Complexity      | Project-level structural complexity (fan-out, cycles)     |
+| Documentation   | Public-API doc coverage and TODO/FIXME inventory          |
+| TestSmell       | Quality of the tests themselves                           |
+
+This means you can tell CI "fail on security, warn on documentation" without hand-curating severities. See [Dimensions](/concepts/dimensions) for the full rule list and [Severity and scoring](/concepts/severity-and-scoring) for how scores are calculated.
+
 ## Languages supported
 
-| Language                | Status | Notes                                           |
-| ----------------------- | ------ | ----------------------------------------------- |
-| Rust                    | full   | `syn`-backed                                    |
-| Python                  | full   | `rustpython-parser`-backed                      |
-| JavaScript / TypeScript | full   | `oxc_parser`; covers `.js/.mjs/.cjs/.jsx/.ts/.mts/.cts/.tsx` |
-| Go                      | stub   | No maintained native Rust Go parser             |
+| Language                | Status | Notes                                                  |
+| ----------------------- | ------ | ------------------------------------------------------ |
+| Rust                    | Full   | Built-in                                               |
+| Python                  | Full   | Built-in                                               |
+| JavaScript / TypeScript | Full   | Built-in; covers `.js`, `.mjs`, `.cjs`, `.jsx`, `.ts`, `.mts`, `.cts`, `.tsx` |
+| Go                      | Stub   | Not yet supported                                      |
 
-The full table with notes lives at [Install — Language support](/getting-started/install#language-support).
+For installation details and the full language matrix, see [Install](/getting-started/install#language-support).
 
 ## Rules
 
-25 rules span all five dimensions. Rule IDs use the prefix of their dimension: `MAINT`, `SEC`, `CPLX`, `DOC`, `TEST`. Every finding carries optional CWE and OWASP taxonomy labels; filter with `--cwe` or `--owasp`. Browse the full list under [Rules reference](/rules/).
+25 rules span all five dimensions. Rule IDs use a dimension prefix: `MAINT`, `SEC`, `CPLX`, `DOC`, `TEST`. Findings that map to industry vulnerability taxonomies carry CWE and OWASP labels — filter with `--cwe` or `--owasp`. Browse the full list under [Rules reference](/rules/).
 
 ## Output formats
 
-codelens renders to a colored terminal report by default, with optional OSC-8 hyperlinks. Pass `--format json` for the stable machine-readable contract, `--format markdown` for PR-comment-friendly output, or `--format sarif` for GitHub code-scanning integration.
+codelens prints a colored terminal report by default. Use `--format json` for machine-readable output, `--format markdown` for PR comments, or `--format sarif` for GitHub code-scanning integration. See [Terminal output](/output/terminal).
 
-See [Terminal output](/output/terminal) for the default format.
+## Dashboard and scan history
 
-## Scan history and dashboard
+Run `codelens show` after any scan to open a local browser dashboard with Overview, Scans, Findings, Trends, Diff, Heatmap, and Config tabs. See [`codelens show`](/cli/show).
 
-Every `codelens analyze` run is saved to `~/.codelens/`. Run `codelens show` to start a local HTTP server and open a browser dashboard with Overview, Scans, Findings, Trends, Diff, Heatmap, and Config tabs. See [`codelens show`](/cli/show).
+## Editor integration
 
-## Language Server
-
-`codelens lsp` starts a stdio JSON-RPC Language Server. Editors that send `textDocument/didSave` receive `publishDiagnostics` with findings mapped to LSP severity levels. See [LSP integration](/integrations/lsp).
+`codelens lsp` starts a Language Server that sends findings to your editor whenever you save a file. See [LSP integration](/integrations/lsp).
 
 ## GitHub Action
 
-A composite action at `action.yml` in the source repo installs codelens, runs analysis, and uploads SARIF results to GitHub code scanning. See [GitHub Action](/integrations/github-action).
+A ready-made GitHub Action installs codelens, runs analysis, and uploads results to GitHub code scanning in one step. See [GitHub Action](/integrations/github-action).
 
-## Extensibility
+## Extending codelens
 
-The workspace is extensible along two independent axes:
-
-- **New languages.** A `codelens-lang-X` crate implements a small `Language` trait. Cross-language analyzers automatically support the new language because they read a normalized `SemanticIndex`. See [Add a language frontend](/extending/add-a-language).
-- **New analyzers.** A new analyzer adds one file to `codelens-analyzers` (cross-language) or to a language crate (language-specific). No language frontend changes. See [Add an analyzer](/extending/add-an-analyzer).
-
-Neither change touches the other axis. The contract is enforced at the Cargo dependency-graph level, not by visibility modifiers — see [Architecture](/architecture).
+You can add support for new languages or write custom analyzers without touching the rest of the codebase. See [Add a language frontend](/extending/add-a-language) and [Add an analyzer](/extending/add-an-analyzer).

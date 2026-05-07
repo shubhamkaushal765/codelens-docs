@@ -1,11 +1,16 @@
 ---
 title: Add an analyzer
-description: Add a new cross-language or language-specific analyzer to codelens without touching existing language frontends.
+description: Guide for contributors who want to add a new cross-language or language-specific check to codelens.
 ---
 
 # Add an analyzer
 
-Adding an analyzer never requires changes to a language frontend. There are two cases: a *cross-language* rule that reads only `SemanticIndex` and lives in `codelens-analyzers`, and a *language-specific* rule that needs the native AST and lives inside its language crate.
+You want codelens to detect something new. This guide covers both kinds of analyzer you can write:
+
+- **Cross-language rule** — works across all languages by reading the normalized `SemanticIndex`. Lives in `codelens-analyzers`. No changes to any language crate needed.
+- **Language-specific rule** — needs access to the native AST for one language. Lives inside the relevant `codelens-lang-X` crate.
+
+Adding either type of analyzer never requires changes to the other.
 
 ```mermaid
 flowchart LR
@@ -32,15 +37,17 @@ flowchart LR
     class FI primary
 ```
 
+---
+
 ## Cross-language rule
 
-A cross-language rule lives in `codelens-analyzers` and operates on `SemanticIndex` only.
+Use this path when your rule can be expressed in terms of functions, types, imports, string literals, or doc comments — the data that every language frontend writes into the `SemanticIndex`.
 
 ### Step 1 — Implement `Analyzer`
 
-Create `crates/codelens-analyzers/src/my_rule.rs`. Implement `Analyzer`. Set `supported_languages()` to `SupportedLanguages::All` (or restrict to a subset of `LanguageId`s without importing any language crate). Your `analyze_file` receives a `&ParsedFile` and calls `file.index()` — never `file.native::<T>()`.
+Create `crates/codelens-analyzers/src/my_rule.rs`. The `analyze_file` method receives a `&ParsedFile` and should call `file.index()` to read the `SemanticIndex`. Never call `file.native::<T>()` in a cross-language rule — that would tie it to one language.
 
-Example rule shape (following [`cyclomatic.rs`](https://github.com/shubhamkaushal765/codelens/blob/main/crates/codelens-analyzers/src/cyclomatic.rs)):
+The shape to follow (modeled on [`cyclomatic.rs`](https://github.com/shubhamkaushal765/codelens/blob/main/crates/codelens-analyzers/src/cyclomatic.rs)). The `id` appears in reports and config; `dimension` controls which section of the report the finding lands in; `analyze_file` is called once per file and returns zero or more findings:
 
 ```rust
 pub struct MyRuleAnalyzer;
@@ -52,16 +59,18 @@ impl Analyzer for MyRuleAnalyzer {
     fn rules(&self) -> &[RuleMeta] { &[/* ... */] }
     fn analyze_file(&self, ctx: &AnalysisContext<'_>, file: &ParsedFile) -> Vec<Finding> {
         file.index().functions.iter()
-            .filter(|f| /* condition */)
+            .filter(|f| /* your condition */)
             .map(|f| Finding { /* ... */ })
             .collect()
     }
 }
 ```
 
+`SupportedLanguages::All` means the rule runs on every language codelens knows about, including any languages added in the future. You can restrict to a subset with `SupportedLanguages::Only(&[LanguageId("rust"), LanguageId("python")])` without importing any language crate.
+
 ### Step 2 — Register in `builtin()`
 
-Register in [`codelens-analyzers/src/lib.rs`](https://github.com/shubhamkaushal765/codelens/blob/main/crates/codelens-analyzers/src/lib.rs):
+Add your analyzer to the list in [`codelens-analyzers/src/lib.rs`](https://github.com/shubhamkaushal765/codelens/blob/main/crates/codelens-analyzers/src/lib.rs). This is the only other file you need to touch — the `build_registry()` function in `codelens-registry` calls `builtin()`, so your rule is picked up automatically by both the CLI and the LSP:
 
 ```rust
 pub fn builtin() -> Vec<Box<dyn Analyzer>> {
@@ -74,11 +83,9 @@ pub fn builtin() -> Vec<Box<dyn Analyzer>> {
 }
 ```
 
-The `build_registry()` function in `codelens-registry` calls `builtin()` and picks up the new analyzer automatically — no CLI or LSP edit needed.
-
 ### Step 3 — Assign a `rule_id`
 
-Use the format `<DIM><NNN>-slug`, e.g. `MAINT002-fan-out`. The prefix encodes the dimension:
+Use the format `<DIM><NNN>-slug`, for example `MAINT002-fan-out`. Choose the prefix that matches your rule's dimension:
 
 | Prefix  | Dimension       |
 | ------- | --------------- |
@@ -90,19 +97,25 @@ Use the format `<DIM><NNN>-slug`, e.g. `MAINT002-fan-out`. The prefix encodes th
 
 ### Step 4 — Document the rule
 
-Create `docs/rules/<rule_id>.md` in the codelens-docs repo. Include: what it detects, why it matters, fix guidance, positive + negative fixture examples, and config knobs if any. See existing rule pages under [Rules reference](/rules/) for the expected structure.
+Create `docs/rules/<rule_id>.md` in the codelens-docs repo. Include: what the rule detects, why it matters, how to fix it, a positive fixture (triggers the finding), a negative fixture (does not trigger), and any config knobs. See existing pages under [Rules reference](/rules/) for the expected structure.
 
 ### Step 5 — Add fixtures and tests
 
-Add a fixture file under `fixtures/<language>/` that triggers the finding, and a negative fixture that does not. Run `cargo test --workspace` to verify the inline unit tests pass.
+Add fixture files under `fixtures/<language>/` — one that triggers the finding and one that does not — then verify everything passes:
+
+```bash
+cargo build --workspace && cargo test --workspace
+```
+
+---
 
 ## Language-specific rule
 
-A language-specific rule lives inside its language crate, not in `codelens-analyzers`.
+Use this path when your rule needs access to AST nodes that aren't captured in the `SemanticIndex` — for example, Rust `unsafe` blocks, Python decorator chains, or JS prototype manipulation.
 
 ### Step 1 — Implement `Analyzer` against the native AST
 
-Create `crates/codelens-lang-X/src/analyzers/my_rule.rs`. Access the native AST via `try_x_ast(file)`:
+Create `crates/codelens-lang-X/src/analyzers/my_rule.rs`. Use the typed accessor for the language's native AST (e.g. `try_rust_ast`, `try_python_ast`) rather than downcasting manually. The early-return on a missing AST ensures codelens safely skips files that aren't the expected language without any error:
 
 ```rust
 pub struct MyLangRuleAnalyzer;
@@ -110,28 +123,30 @@ pub struct MyLangRuleAnalyzer;
 impl Analyzer for MyLangRuleAnalyzer {
     fn analyze_file(&self, _ctx: &AnalysisContext<'_>, file: &ParsedFile) -> Vec<Finding> {
         let Some(ast) = try_x_ast(file) else { return vec![] };
-        // use ast.something to produce findings
+        // use ast fields to produce findings
         todo!()
     }
-    // ...
+    // implement id(), dimension(), supported_languages(), rules() ...
 }
 ```
 
-See [`unsafe_block.rs`](https://github.com/shubhamkaushal765/codelens/blob/main/crates/codelens-lang-rust/src/analyzers/unsafe_block.rs) for the complete Rust example.
+See [`unsafe_block.rs`](https://github.com/shubhamkaushal765/codelens/blob/main/crates/codelens-lang-rust/src/analyzers/unsafe_block.rs) for a complete, working example.
 
 ### Step 2 — Register in the language crate
 
-Register inside the language crate's `register()` function (see Step 7 in [Add a language frontend](/extending/add-a-language)).
+Add your analyzer inside the language crate's `register()` function (see [Step 7 in Add a language frontend](/extending/add-a-language)). It is picked up automatically from there — no changes to `codelens-analyzers` or `codelens-registry` are needed.
 
 ### Step 3 — Assign a `rule_id`
 
-Follow the same `<DIM><NNN>-slug` format, but conventionally append the language tag for language-specific rules: `SEC101-rust-unsafe`, `SEC002-python-eval-sink`.
+Follow the same `<DIM><NNN>-slug` format. For language-specific rules, conventionally append the language tag: `SEC101-rust-unsafe`, `SEC002-python-eval-sink`.
 
 ### Step 4 — Document the rule
 
 Write `docs/rules/<rule_id>.md` with positive and negative fixture examples for the target language.
 
-## Verifying
+---
+
+## Verify your work
 
 ```bash
 cargo build --workspace && cargo test --workspace

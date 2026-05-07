@@ -1,6 +1,6 @@
 ---
 title: codelens install-hook
-description: Write a git pre-commit hook that runs codelens on every commit.
+description: Install a git pre-commit hook that blocks commits when codelens finds issues above a severity threshold.
 ---
 
 # codelens install-hook
@@ -9,7 +9,13 @@ description: Write a git pre-commit hook that runs codelens on every commit.
 codelens install-hook
 ```
 
-Writes a git pre-commit hook to `.git/hooks/pre-commit` in the current repository. The hook runs `codelens analyze --fail-on medium` before each commit and aborts the commit if any finding at `medium` severity or above is found.
+Use `codelens install-hook` to protect your repository at the point of commit. It writes a git pre-commit hook to `.git/hooks/pre-commit` that runs `codelens analyze --fail-on medium` before each commit and aborts the commit if any finding at `medium` severity or above is found.
+
+## When to use this
+
+- Enforce a minimum quality bar for every commit without relying on CI alone.
+- Give developers immediate feedback before bad code reaches the remote.
+- Combine with a baseline file to block only newly introduced findings.
 
 ## What it writes
 

@@ -1,6 +1,6 @@
 # DOCS.md — Documentation Style Guide
 
-**Last reviewed:** 2026-05-06
+**Last reviewed:** 2026-05-07
 
 How to write and maintain content for the codelens-docs site. Adapted from `/home/user/codelens/.agent/DOCS.md`.
 
@@ -8,17 +8,22 @@ How to write and maintain content for the codelens-docs site. Adapted from `/hom
 
 ## Audience
 
+Write for **end users** of codelens — engineers, tech leads, security folks, and CI maintainers who want to scan their code and act on the results. They are not codelens contributors.
+
 Assume readers know:
 
-- Basic Rust (you can read `fn`, `let`, `pub`, traits)
-- What static analysis is (broadly)
-- How to use a CLI
+- How to use a command line.
+- The general idea of a linter or static analyzer.
+- How CI works at a basic level (running a step on every push / PR).
 
 Do NOT assume readers know:
 
-- Specific complexity metrics (cyclomatic, cognitive)
-- SARIF, OSC-8, or other niche formats
-- The internals of `codelens` crates
+- Rust internals, Cargo workspaces, traits, or the names of the libraries codelens uses (`syn`, `oxc_parser`, `rustpython-parser`, `rayon`, `blake3`, `tower-lsp`, etc.).
+- Specific complexity metrics (cyclomatic, cognitive) — define them on first use.
+- Niche formats (SARIF, OSC-8 hyperlinks, JSON Schema) — explain in one line on first use.
+- The internal type names or crate boundaries of `codelens`.
+
+The two pages under `docs/extending/` are the exception — they target contributors, so trait/crate vocabulary is appropriate there.
 
 When you introduce a term, define it on first use or link to the page that defines it.
 
@@ -28,9 +33,12 @@ When you introduce a term, define it on first use or link to the page that defin
 
 - Clear, concise, professional. No marketing copy, no exclamation marks.
 - Second person (`you run`, `you configure`).
-- Present tense for behavior (`codelens emits a finding`).
+- Present tense for behavior (`codelens reports a finding`).
 - Imperative for instructions (`Run`, `Open`, `Add`).
 - Front-load conclusions; explain why second.
+- **Lead with the user's outcome.** Open every page with what the reader can *do* with this content — not how the system is built. "Use `codelens analyze` to scan your code" beats "The `analyze` subcommand invokes `Engine::analyze_path`."
+- **Tasks over internals.** Convert "X is implemented by Y" into "You can use X to ...". Mention internals only when a user must understand them (e.g. cache location, history file path).
+- **Plain language over jargon.** If a term has a simpler equivalent that does not lose precision, use it. Reserve technical vocabulary (trait, crate, AST, dependency graph) for `docs/extending/` and the small "For contributors" section of `architecture.md`.
 
 ---
 
@@ -39,8 +47,10 @@ When you introduce a term, define it on first use or link to the page that defin
 1. **One H1 per file**, matching the page title in frontmatter.
 2. Use H2 for top-level sections, H3 for subsections. Avoid H4+.
 3. **Tables over prose** wherever a table fits.
-4. Code examples only when the example *is* the rule (e.g. config snippets, CLI invocations).
+4. Code examples only when the example *is* the rule (e.g. config snippets, CLI invocations). Examples must be copy-pasteable.
 5. Lead with what; details after.
+6. **Task-oriented headings** are preferred over noun-only headings on user-facing pages: "Run your first scan" beats "First scan"; "Disable a rule" beats "Per-rule config"; "Gate CI on severity" beats "Fail-on threshold". Reference tables can stay noun-only.
+7. Where natural, include a **"When to use this"** mini-section near the top of CLI / integration / output pages so users can self-select.
 
 ---
 
@@ -187,7 +197,8 @@ flowchart LR
 
 ## What NOT to write
 
-- Internal implementation details — link to the crate's `cargo doc` instead.
+- Internal implementation details on user-facing pages — link to the crate's `cargo doc` or to the source repo's architecture doc instead. Specifically avoid: parser library names (`syn`, `oxc_parser`, `rustpython-parser`), parallelism libraries (`rayon`), hashing libraries (`blake3`), Rust type names (`Arc<…>`, `Vec<Finding>`, `SemanticIndex`, `FunctionLike`), trait signatures, crate-graph rules, and `#[non_exhaustive]` discussions. The two `docs/extending/` pages and a short "For contributors" section in `architecture.md` are the only places this vocabulary belongs.
+- Patterns that talk past the user: "This module handles…", "The Engine orchestrates…", "Phase A executes…". Rewrite as "You run X to do Y" or "When you run X, codelens does Y".
 - Past-tense changelogs in page bodies — use a dedicated changelog page if needed.
 - Speculation about future features — link to a GitHub issue or omit.
 - Marketing copy ("powerful", "blazing-fast", "industry-leading"). State the fact.

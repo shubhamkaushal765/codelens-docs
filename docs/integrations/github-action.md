@@ -1,18 +1,23 @@
 ---
 title: GitHub Action
-description: Run codelens in GitHub Actions and upload SARIF results to GitHub code scanning.
+description: Scan every PR with codelens and post findings to GitHub code scanning in under five minutes.
 ---
 
 # GitHub Action
 
-codelens ships a [composite action](https://github.com/shubhamkaushal765/codelens/blob/main/action.yml) at the root of the source repository. It installs codelens, runs analysis, and uploads SARIF results to GitHub code scanning.
+Add codelens to GitHub Actions to scan every PR and post findings to GitHub code scanning. The action installs codelens, scans your code, and uploads findings as a SARIF report — which then appears in the **Security** tab and as inline annotations on pull requests.
 
-## Quick start
+## Complete workflow
+
+Copy this into `.github/workflows/codelens.yml`:
 
 ```yaml
 name: codelens
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [main]
+  pull_request:
 
 jobs:
   codelens:
@@ -27,16 +32,18 @@ jobs:
           fail-on: "medium"
 ```
 
+The `security-events: write` permission is required so the action can upload the SARIF report to GitHub.
+
 ## Inputs
 
-| Input     | Required | Default    | Description                                                                        |
-| --------- | -------- | ---------- | ---------------------------------------------------------------------------------- |
-| `path`    | no       | `.`        | Root path to analyse, relative to the repository root.                             |
-| `format`  | no       | `sarif`    | Output format passed to `codelens analyze --format`.                               |
-| `fail-on` | no       | `medium`   | Exit non-zero when findings of this severity or higher are found.                  |
-| `version` | no       | `latest`   | Version of codelens to install. Pass `latest` or a semver string (e.g. `0.1.0`).  |
+| Input     | Required | Default  | Description                                                                       |
+| --------- | -------- | -------- | --------------------------------------------------------------------------------- |
+| `path`    | no       | `.`      | Root path to scan, relative to the repository root.                               |
+| `format`  | no       | `sarif`  | Output format. Use `sarif` to upload to code scanning, or `json` for an artifact. |
+| `fail-on` | no       | `medium` | Fail the job when findings at this severity or higher are found.                  |
+| `version` | no       | `latest` | Version of codelens to install (`latest` or a semver string such as `0.1.0`).    |
 
-## What it does
+## How findings reach GitHub
 
 ```mermaid
 flowchart LR
@@ -56,23 +63,23 @@ flowchart LR
     class GH primary
 ```
 
-1. Installs the stable Rust toolchain via [`dtolnay/rust-toolchain@stable`](https://github.com/dtolnay/rust-toolchain).
-2. Runs `cargo install --locked codelens` (or a pinned version).
-3. Runs `codelens analyze <path> --format <format> --fail-on <fail-on> --output codelens-results.sarif` with `continue-on-error: true` so the upload step always runs.
-4. Uploads `codelens-results.sarif` to GitHub via [`github/codeql-action/upload-sarif@v3`](https://github.com/github/codeql-action) (only when `format == 'sarif'`).
+After the action runs, findings appear both in the repository's **Security > Code scanning** tab and as inline annotations on the pull request diff.
 
-## Permissions
+## Common recipes
 
-The `security-events: write` permission is required for the SARIF upload step.
+### Gate on severity
+
+Fail the job only for high-severity and above, but still upload all findings to code scanning:
 
 ```yaml
-permissions:
-  security-events: write
+- uses: shubhamkaushal765/codelens@main
+  with:
+    fail-on: "high"
 ```
 
-## Using JSON instead of SARIF
+### Save a JSON report as an artifact instead of uploading to code scanning
 
-Set `format: json` to get a JSON report artifact instead of uploading to code scanning:
+Set `format: json` to write a JSON report file and skip the SARIF upload:
 
 ```yaml
 - uses: shubhamkaushal765/codelens@main
@@ -83,12 +90,12 @@ Set `format: json` to get a JSON report artifact instead of uploading to code sc
 - uses: actions/upload-artifact@v4
   with:
     name: codelens-report
-    path: codelens-results.sarif
+    path: codelens-results.json
 ```
 
-## Pinning a version
+### Pin a specific version
 
-To avoid unexpected breakage from new analyzer rules, pin to a specific codelens version:
+Pin to a known codelens version to avoid unexpected changes when new rules are released:
 
 ```yaml
 - uses: shubhamkaushal765/codelens@main

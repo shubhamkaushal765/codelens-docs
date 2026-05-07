@@ -1,6 +1,6 @@
 ---
 title: codelens watch
-description: Re-run analysis automatically when source files change, using the incremental cache.
+description: Automatically re-scan your code whenever a file is saved, and see findings immediately in the terminal.
 ---
 
 # codelens watch
@@ -9,20 +9,13 @@ description: Re-run analysis automatically when source files change, using the i
 codelens watch [PATH]
 ```
 
-Watches `<PATH>` for file-system changes and re-runs `codelens analyze` automatically. Uses the incremental file-hash cache unconditionally, so only changed files are re-analysed. Runs until you press Ctrl-C.
+Use `codelens watch` to get instant feedback as you code. It monitors `<PATH>` for saved changes and re-runs analysis automatically, printing any findings to the terminal. Only the files you changed are re-scanned, so results appear quickly. Press Ctrl-C to stop.
 
-```mermaid
-flowchart LR
-    A[FS event] --> B[debounce\n250 ms]
-    B --> C{hash\nchanged?}
-    C -->|yes| D[re-analyze\nfile]
-    C -->|no| E[skip]
-    D --> F[emit findings\nto stdout]
-    F --> A
+## When to use this
 
-    classDef primary fill:#1e4d8c,color:#fff,stroke:#163c6e
-    class D primary
-```
+- Get immediate quality feedback while editing, without switching context.
+- Catch new findings the moment they are introduced rather than at commit time.
+- Use alongside your editor as a lightweight alternative to the LSP server.
 
 ## Arguments
 
@@ -32,10 +25,10 @@ flowchart LR
 
 ## Behaviour
 
-- Uses the [`notify`](https://crates.io/crates/notify) crate for cross-platform filesystem events.
-- Changes are **debounced** by 250 ms to coalesce rapid saves (e.g. editor auto-save storms).
-- The incremental cache at `<project_root>/.codelens-cache/v1.json` is always active; only files whose blake3 content hash changed since the last run are re-parsed and re-analysed.
-- Output is printed to stdout after each triggered run; terminal format is used by default.
+- Picks up changes across all supported file types under `<PATH>` on all major operating systems.
+- Rapid saves (such as editor auto-save) are grouped together so only one re-scan fires per burst.
+- Only files that have actually changed are re-scanned; unmodified files are skipped automatically.
+- Findings are printed to the terminal after each triggered run.
 
 ## Flags
 

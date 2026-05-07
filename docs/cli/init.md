@@ -1,6 +1,6 @@
 ---
 title: codelens init
-description: Reference for codelens init — writes a default codelens.toml to the current directory.
+description: Create a codelens.toml config file in the current directory to start customising your scan.
 ---
 
 # codelens init
@@ -9,7 +9,7 @@ description: Reference for codelens init — writes a default codelens.toml to t
 codelens init
 ```
 
-Writes a default `codelens.toml` to the current directory. The file is a fully-commented starting point you can edit in place, with every section the configuration loader recognises.
+Use `codelens init` to create a `codelens.toml` configuration file in the current directory. The generated file includes every supported section with inline comments, so you can edit it to match your project without consulting the full reference first.
 
 ## What it writes
 
@@ -32,17 +32,17 @@ enabled  = true
 severity = "high"
 ```
 
-See the [`codelens.toml` reference](/configuration/codelens-toml) for the full set of recognised keys.
+See the [`codelens.toml` reference](/configuration/codelens-toml) for the full set of available options.
 
-## Flags
+## Options
 
 | Flag              | Type | Default | Description                                      |
 | ----------------- | ---- | ------- | ------------------------------------------------ |
-| `-v`, `--verbose` | flag | off     | Increase log verbosity (`-v` INFO, `-vv` DEBUG). |
+| `-v`, `--verbose` | flag | off     | Increase log verbosity (`-v` = INFO, `-vv` = DEBUG). |
 | `-h`, `--help`    | flag |         | Print help.                                      |
 
 :::caution
-If `codelens.toml` already exists in the current directory, `codelens init` refuses to overwrite it. Delete or rename the existing file first, then re-run.
+If `codelens.toml` already exists in the current directory, `codelens init` will not overwrite it. Delete or rename the existing file first, then re-run.
 :::
 
 ## See also

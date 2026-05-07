@@ -1,11 +1,11 @@
 ---
 title: Your first analysis
-description: Walk through running codelens on a project, generating a config, and exploring results in the browser.
+description: Scan your project, read the results, open the dashboard, and lock in your settings — a five-minute walkthrough.
 ---
 
 # Your first analysis
 
-This page walks through a first run of codelens on a small project.
+This walkthrough takes you from zero to a configured codelens project in five steps. If you haven't installed codelens yet, start at [Install](/getting-started/install).
 
 ```mermaid
 flowchart TD
@@ -18,64 +18,68 @@ flowchart TD
     classDef accent fill:#d4a017,color:#1a1a1a,stroke:#a87d10
 ```
 
-The example assumes a layout like:
+## Run your first scan
 
-```text
-my-project/
-├── src/
-│   ├── lib.rs
-│   └── main.rs
-└── Cargo.toml
-```
-
-## Step 1 — Run a one-shot analysis
-
-Point `codelens analyze` at any directory containing Rust, Python, or JavaScript/TypeScript source. No configuration is required for this first run.
+Point `codelens analyze` at any directory. No configuration file is required.
 
 ```bash
-codelens analyze ./src --format terminal
+codelens analyze ./src
 ```
 
-codelens walks the directory, parses every supported file in parallel, runs each registered analyzer, and prints a terminal report. The walk respects `.gitignore` and skips common vendor directories by default.
+codelens scans every Rust, Python, and JavaScript/TypeScript file it finds, respecting `.gitignore` and skipping common vendor directories automatically. Results appear in the terminal as soon as the scan finishes.
 
-## Step 2 — Read the terminal output
+## Read the results
 
-The report groups findings by dimension and severity, then prints a closing scoreboard with one 0–100 score and an A–F grade per dimension. See [Reading the output](/getting-started/reading-output) for an annotated example.
+The terminal report lists findings grouped by dimension and severity, then closes with a scoreboard — one 0–100 score and an A–F grade per dimension:
 
-## Step 3 — Explore the dashboard
+```text
+Maintainability  87.4  B
+Security         98.1  A
+Complexity      100.0  A
+Documentation    73.5  C
+TestSmell        91.0  A
+```
 
-After the run, open the interactive history dashboard:
+See [Reading the output](/getting-started/reading-output) for a full walkthrough of what each part means.
+
+## Explore the dashboard
+
+After a scan, open the interactive history dashboard:
 
 ```bash
 codelens show
 ```
 
-This starts a background HTTP server and opens a browser tab with Overview, Scans, Findings, Trends, Diff, Heatmap, and Config tabs. Every subsequent `codelens analyze` run is automatically saved to history.
+This starts a local HTTP server and opens a browser tab with Overview, Scans, Findings, Trends, Diff, Heatmap, and Config tabs. Every `codelens analyze` run is saved automatically so the Trends and Diff views fill in over time.
 
-To skip saving a run: `codelens analyze ./src --no-save`.
+To run a one-off scan without saving it to history:
 
-## Step 4 — Generate a config
+```bash
+codelens analyze ./src --no-save
+```
 
-Once you know which rules and severities matter for your project, generate a `codelens.toml` with the defaults:
+## Generate a config file
+
+Once you know which rules and thresholds matter for your project, generate a `codelens.toml` starter file:
 
 ```bash
 codelens init
 ```
 
-`codelens init` writes `codelens.toml` to the current directory. The file contains commented sections for the `[general]` block (excludes, language list), one `[dimensions.<name>]` block per dimension, and per-rule overrides under `[rules.<rule_id>]`. See the [codelens.toml reference](/configuration/codelens-toml) for every field.
+This writes `codelens.toml` to the current directory with commented sections for general settings, per-dimension thresholds, and per-rule overrides. Edit the file to match your project's standards. See the [codelens.toml reference](/configuration/codelens-toml) for every available field.
 
-## Step 5 — Re-run with the config
+## Re-run with your config
 
-When `codelens.toml` is present at the project root, codelens auto-discovers it by walking upward from the analyzed path. You can run from the project root:
+When `codelens.toml` is present at the project root, codelens picks it up automatically — just run from the root:
 
 ```bash
 codelens analyze .
 ```
 
-…or override the discovery with `--config <path>`:
+To point at a config file in a non-standard location:
 
 ```bash
 codelens analyze ./src --config ./codelens.toml
 ```
 
-The full flag list is documented in [`codelens analyze`](/cli/analyze).
+For the complete list of flags, see [`codelens analyze`](/cli/analyze).

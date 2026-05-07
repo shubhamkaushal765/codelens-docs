@@ -1,16 +1,16 @@
 ---
 title: JSON schema
 sidebar_label: JSON schema
-description: Full reference for the codelens JSON output — top-level shape, every field, severity weights, the scoring formula, and version history.
+description: Complete field-by-field reference for the codelens JSON report — every property, severity weights, the scoring formula, and version history.
 ---
 
 # JSON schema
 
-This is the complete reference for the JSON document emitted by `codelens analyze --format json`. For a usage-oriented overview, see [JSON output](./json).
+This is the complete reference for the JSON document produced by `codelens analyze --format json`. For a usage-oriented overview and filtering examples, see [JSON output](./json).
 
 The canonical source lives at [`docs/json-schema.md` in the codelens repo](https://github.com/shubhamkaushal765/codelens/blob/main/docs/json-schema.md).
 
-**Schema version:** 2
+**Schema version:** 2  
 **Stability:** v2 is stable. Any breaking change bumps `schema_version`.
 
 ---
@@ -62,7 +62,7 @@ Field order in the top-level object is always:
 | Current value | `2`                                                   |
 | Constraints   | Positive integer. Incremented on any breaking change. |
 
-**Policy:** Consumers should reject documents whose `schema_version` is greater than the highest version they support, and may warn on versions lower than expected.
+If you consume this output in a script or tool, check `schema_version` first. Reject documents whose version is higher than your tool supports, and warn on versions lower than expected.
 
 ---
 
@@ -75,7 +75,7 @@ Field order in the top-level object is always:
 | Sub-field | Type   | Description                                                                |
 | --------- | ------ | -------------------------------------------------------------------------- |
 | `name`    | string | Always `"codelens"`                                                        |
-| `version` | string | Semantic version of the binary that produced this report (e.g. `"0.1.0"`) |
+| `version` | string | Version of the binary that produced this report (e.g. `"0.1.0"`)          |
 
 ---
 
@@ -88,7 +88,7 @@ Field order in the top-level object is always:
 | Value type | number (float)                                 |
 | Range      | `0.0` to `100.0` inclusive. Higher is better. |
 
-**Field order guarantee:** The five v1 dimension keys always appear in this order:
+**Field order guarantee:** The five standard dimension keys always appear in this order:
 
 1. `maintainability`
 2. `security`
@@ -98,7 +98,7 @@ Field order in the top-level object is always:
 
 Custom dimensions (if any) follow in lexicographic order.
 
-**Precision:** Scores are serialized at full `f32` precision. Display formats (terminal, markdown) round to one decimal place.
+**Precision:** Scores are produced at full `f32` precision. Display formats (terminal, markdown) round to one decimal place.
 
 **Scoring formula:**
 
@@ -151,7 +151,7 @@ Field order in `grades` matches the field order of `scores`.
 | -------- | ------------------------ |
 | Type     | array of finding objects |
 
-**Sort order guarantee:** Findings are sorted lexicographically by `(location.file, location.span.start, rule_id)`. This order is deterministic across runs given the same input.
+**Sort order guarantee:** Findings are sorted by `(location.file, location.span.start, rule_id)`. This order is deterministic across runs given the same input, so the output is safe to diff in CI.
 
 #### Finding object
 

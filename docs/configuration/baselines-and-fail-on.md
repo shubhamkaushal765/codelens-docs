@@ -1,11 +1,14 @@
 ---
 title: Baselines and fail-on
-description: Two CI workflows — gate pull requests on severity with --fail-on, and adopt codelens on legacy code with --baseline.
+description: Block merges on new findings with --fail-on, and ignore pre-existing issues with --baseline so you can adopt codelens incrementally.
 ---
 
 # Baselines and fail-on
 
-`codelens analyze` ships two flags for CI integration. Use them together: `--fail-on` gates new findings, `--baseline` ignores old ones.
+Two flags give you precise control over how codelens gates your CI pipeline:
+
+- **`--fail-on`** — exit non-zero when any finding reaches a given severity level. Use this to block merges on serious issues.
+- **`--baseline`** — suppress findings that were already present in a known-good run. Use this to adopt codelens on a codebase that already has issues without being swamped by pre-existing noise.
 
 ```mermaid
 flowchart TD
@@ -32,17 +35,23 @@ flowchart TD
 
 ## `--fail-on`
 
-Use `--fail-on` to make CI fail when findings reach a severity threshold. Without it, `codelens analyze` always exits `0` after rendering output — useful for informational runs, but not for blocking merges.
+Without `--fail-on`, `codelens analyze` always exits `0` — useful for informational runs, but not for blocking merges.
 
-| Value      | Fails on                    |
+Add `--fail-on` to fail CI whenever a finding reaches or exceeds the severity you specify:
+
+```bash
+codelens analyze . --fail-on high
+```
+
+| Value      | Fails when a finding is…    |
 | ---------- | --------------------------- |
-| `info`     | Any finding (info or above) |
+| `info`     | Info or above (any finding) |
 | `low`      | Low or above                |
 | `medium`   | Medium or above             |
 | `high`     | High or above               |
-| `critical` | Critical findings only      |
+| `critical` | Critical only               |
 
-Default: unset — no threshold, exit `0` always.
+Default: unset — no threshold, always exits `0`.
 
 ### GitHub Actions example
 
@@ -68,17 +77,32 @@ See [GitHub Action](/integrations/github-action) for the full input reference.
 
 ## `--baseline`
 
-Use `--baseline` to adopt codelens on a codebase that already has issues you do not plan to fix immediately. The baseline file records every finding from a known-good run; on subsequent runs, findings present in the baseline are suppressed, so only **new** findings reach the formatter and `--fail-on`.
+A baseline file records every finding from a run on your main branch (or any chosen reference point). On subsequent runs, findings that match the baseline are suppressed — only **new** findings reach the formatter and `--fail-on`. This lets you adopt codelens on a codebase that already has issues without failing CI on things you haven't fixed yet.
 
-### Capturing a baseline
+### Set up a baseline in three steps
 
-Use `codelens baseline save` to capture the current findings as a baseline file:
+**Step 1.** Capture today's findings:
 
 ```bash
 codelens baseline save -o codelens-baseline.json
 ```
 
-You can also capture a baseline from a historical git ref:
+**Step 2.** Commit the baseline file so CI can use it:
+
+```bash
+git add codelens-baseline.json
+git commit -m "chore: codelens baseline"
+```
+
+**Step 3.** Update your CI command to apply the baseline:
+
+```bash
+codelens analyze . --baseline codelens-baseline.json --fail-on high
+```
+
+From this point on, pre-existing findings are silenced. Any new finding at `high` or above fails CI.
+
+### Capture a baseline from a historical git ref
 
 ```bash
 codelens baseline save --ref v1.0.0 -o baseline-v1.0.0.json
@@ -86,36 +110,13 @@ codelens baseline save --ref v1.0.0 -o baseline-v1.0.0.json
 
 See [`codelens baseline`](/cli/baseline) for the full reference.
 
-### Workflow
-
-1. Capture today's findings:
-
-   ```bash
-   codelens baseline save -o codelens-baseline.json
-   ```
-
-2. Commit the baseline:
-
-   ```bash
-   git add codelens-baseline.json
-   git commit -m "chore: codelens baseline"
-   ```
-
-3. From now on, run with the baseline applied:
-
-   ```bash
-   codelens analyze . --baseline codelens-baseline.json --fail-on high
-   ```
-
-   Pre-existing findings stay quiet. Anything new at `high` or above fails CI.
-
 :::tip
-Refresh the baseline periodically as legacy findings get fixed. Use `codelens diff` to compare two saved reports and track progress.
+Refresh the baseline periodically as legacy findings get fixed. Use `codelens diff` to compare two saved reports and track your progress over time.
 :::
 
 ## Cache and baseline interaction
 
-The incremental cache (`--no-cache` / `[history] cache = false`) affects analysis speed but not baseline suppression. Baseline suppression is applied after all findings are collected, regardless of whether the cache was used.
+The incremental cache (`--no-cache` / `[history] cache = false`) affects analysis speed but not baseline suppression. Baseline matching is applied after all findings are collected, regardless of whether the cache was used.
 
 ## See also
 

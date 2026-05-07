@@ -8,7 +8,7 @@ Quick reference for AI agents and humans working on the codelens documentation s
 
 `codelens-docs` is the public documentation site for [codelens](https://github.com/shubhamkaushal765/codelens), built with [Docusaurus 3](https://docusaurus.io/). It is a static site authored in MDX, deployed to GitHub Pages.
 
-The codelens source repo is the canonical source of truth: `/home/user/codelens/`. The `.agent/`, `docs/`, and other source-of-truth markdown there is the content base — this site adapts that material for end users.
+The codelens source repo is the canonical source of truth: `/home/user/codelens/`. The `.agent/`, `docs/`, and other source-of-truth markdown there is the content base — this site **adapts that material for end users**, not contributors. See [.agent/DOCS.md](./.agent/DOCS.md) for the audience definition and voice rules. The two pages under `docs/extending/` and a short "For contributors" section of `architecture.md` are the only places that target contributors; everything else leads with the user's outcome.
 
 ---
 
@@ -107,7 +107,7 @@ The information architecture mirrors the user journey:
 7. **Integrations** — GitHub Action, LSP
 8. **Rules reference** — one page per rule
 9. **Extending codelens** — adding a language / analyzer
-10. **Architecture** — workspace crates, data flow, two-axis extensibility, incremental cache
+10. **Architecture** — a plain-language tour of how codelens runs, with a short "For contributors" section linking to the source repo for crate-level detail
 
 Order is set explicitly in [sidebars.ts](./sidebars.ts).
 

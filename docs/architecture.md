@@ -1,106 +1,68 @@
 ---
 title: Architecture
-description: A condensed tour of the codelens architecture — workspace crates, the two-axis extensibility contract, data flow, and stable contracts.
+description: How codelens works inside — file walking, parsing, analysis, scoring, and output.
 ---
 
-import TwoAxisExtensibility from '@site/src/components/diagrams/TwoAxisExtensibility';
 import PipelineDiagram from '@site/src/components/diagrams/PipelineDiagram';
 
 # Architecture
 
-This page is a condensed end-user tour of the codelens architecture. The full long-form narrative lives in the source repo at [`docs/architecture.md`](https://github.com/shubhamkaushal765/codelens/blob/main/docs/architecture.md).
+This page explains what codelens does when you run `codelens analyze`. You do not need to read this to use codelens effectively, but it can help you understand why results look the way they do and what to expect from incremental runs.
 
-## Workspace crates
-
-| Crate | Purpose |
-| --- | --- |
-| `codelens-core` | Traits (`Language`, `Analyzer`), types (`SemanticIndex`, `Finding`, …), `Engine` (incl. `analyze_path_cached`), `Registry`, incremental cache |
-| `codelens-lang-rust` | `syn`-backed Rust frontend + Rust-only analyzers (`SEC101`) |
-| `codelens-lang-python` | `rustpython-parser` Python frontend + Python-only analyzers |
-| `codelens-lang-js` | `oxc_parser` JS/TS frontend; covers `.js/.mjs/.cjs/.jsx/.ts/.mts/.cts/.tsx` |
-| `codelens-analyzers` | 25 cross-language analyzers spanning all five dimensions |
-| `codelens-report` | JSON / SARIF 2.1.0 / Markdown / terminal formatters; A–F grade computation |
-| `codelens-show` | History store (`~/.codelens/`), `tiny_http` server, embedded web UI, Unix double-fork daemon, analytics |
-| `codelens-registry` | Shared `build_registry()` — used by both the CLI and the LSP |
-| `codelens-lsp` | Hand-rolled stdio Language Server (JSON-RPC, no `tower-lsp`) |
-| `codelens-cli` | `codelens` binary — all subcommands |
-
-**Hard rule:** `codelens-lang-*` and `codelens-analyzers` never depend on each other. Both depend only on `codelens-core`. Only `codelens-cli` depends on every crate.
-
-## Goals
-
-codelens runs fast, structured static analysis across a multi-language codebase and emits findings that CI pipelines and humans can act on. The design centres on one invariant: the system must be extensible along two independent axes — new languages and new analysis dimensions — without requiring changes to the other axis.
-
-A secondary goal is production quality: idiomatic Rust, errors via `thiserror` in library crates, `anyhow` only in the CLI, `#![warn(missing_docs)]` on every library crate, no `unwrap()` in library code.
-
-## Non-goals
-
-Real coverage data (line, branch, MC/DC) — coverage requires runtime instrumentation, not static analysis. Taint analysis or dataflow tracking — these need a control-flow graph. `tree-sitter` as a fallback parser — if no native Rust parser exists for a language, that language is stubbed or dropped.
-
-## The two-axis extensibility contract
-
-The central architectural rule, stated precisely:
-
-> `codelens-lang-*` crates and `codelens-analyzers` must never depend on each other. Both depend only on `codelens-core`. The `codelens-cli` crate is the single integration point that depends on everything.
-
-This is enforced at the **Cargo dependency-graph level**, not by visibility modifiers. Because `codelens-analyzers` does not list any `codelens-lang-*` crate as a dependency, the concrete `NativeAst` implementation types (e.g. `RustAst`, `PythonAst`) are simply not in scope when an analyzer is compiled. There is no `unsafe` code or `#[doc(hidden)]` trick hiding something — the types literally do not exist in that compilation unit.
-
-The practical consequence: cross-language analyzers in `codelens-analyzers` consume **only** `SemanticIndex` fields. They never call `ParsedFile::native<T>()`. A language-specific analyzer (e.g. `SEC101-rust-unsafe`) lives inside `codelens-lang-rust` alongside the frontend and uses a typed downcast to reach the pre-extracted Rust AST data.
-
-## Two-axis extensibility (visual)
-
-> For those who prefer it, the equivalent Mermaid diagram is in the [source repo](https://github.com/shubhamkaushal765/codelens/blob/main/docs/architecture.md).
-
-<TwoAxisExtensibility />
-
-`codelens-lang-*` and `codelens-analyzers` share the same level — neither imports the other.
-
-## Data flow
-
-The pipeline for a single `codelens analyze <path>` run:
+## How codelens works
 
 <PipelineDiagram />
 
-The detailed step-by-step Mermaid below shows the sequential barriers between phases:
+### 1. Walk your project files
 
-```mermaid
-flowchart TD
-    A[source files] --> B[walk_files\nlexicographic order]
-    B -->|Vec&lt;PathBuf&gt;| C[Language::parse\nrayon par_iter]
-    C -->|SemanticIndex + NativeAst| D[ParsedFile]
-    D -->|Vec&lt;ParsedFile&gt;| E[analyze_file\nrayon par_iter]
-    E --> F[analyze_project\nsequential]
-    F -->|Vec&lt;Finding&gt;| G[sort_findings\nfile · span · rule_id]
-    G --> H[aggregate_dimension_score]
-    H -->|Report| I[render\nJSON / terminal / markdown]
-    I -->|String| J[stdout / file]
-```
+codelens starts by collecting all source files under the path you give it, in a consistent lexicographic order. It respects `.gitignore` and any `exclude` patterns in your `codelens.toml`. Only files in supported languages (Rust, Python, JavaScript, TypeScript) are analyzed; everything else is skipped.
 
-## SemanticIndex
+### 2. Parse each file with a language-specific frontend
 
-`SemanticIndex` is the load-bearing cross-language contract. Frontends fill it in at parse time; cross-language analyzers consume it. It exposes `functions`, `types`, `modules`, `imports`, `string_literals`, `comments`, and `doc_comments`. Every `FunctionLike` carries pre-computed `ComplexityMetrics` (cyclomatic, cognitive, max_nesting, returns), so analyzers like `MAINT001-cyclomatic` never re-walk a native AST — they read a `u32` from a struct field. Pre-computation also keeps non-`Send` parser fragments out of the post-parse data, allowing rayon to parallelize file analysis without extra synchronization.
+Each file is parsed by a frontend for its language. The frontend does two things:
 
-## Engine and parallelism
+- Builds a normalized summary of the file — the list of functions, types, imports, comments, doc comments, and string literals. This summary is the same shape regardless of language.
+- Extracts a language-native syntax tree for checks that need to go deeper into language-specific syntax (for example, detecting `unsafe` blocks in Rust).
 
-`Engine::analyze_path` orchestrates the pipeline in three phases separated by a sequential barrier:
+Parse failures are counted and reported but do not abort the run. codelens continues analyzing all other files.
 
-- **Phase A — parse (parallel):** `rayon::par_iter` over the lexicographically sorted file list. Each file is read, wrapped in `Arc<SourceFile>`, and passed to its language frontend. Parse failures are counted and do not abort the run.
-- **Phase B — per-file analysis (parallel):** a second `rayon::par_iter` over the parsed files. Each worker filters analyzers by `supported_languages()` and calls `analyze_file`.
-- **Phase C — project analysis (sequential):** each analyzer's `analyze_project` runs once with the full project. This is where rules that aggregate across files (fan-out, cycle detection, duplicate code) run.
+### 3. Run analyzer checks across your files
 
-A single `sort_findings` call after Phase C uses the key `(file, span.start, rule_id)`. One sort at the end is cheaper than maintaining a sorted structure during parallel collection.
+codelens runs two rounds of analysis:
+
+- **Per-file checks** run in parallel across all parsed files. Each check looks at one file at a time. This covers the majority of rules — cyclomatic complexity, function length, hardcoded secrets, missing doc comments, and so on.
+- **Project-wide checks** run once after all files are parsed. These are rules that need to see the whole project at once: circular dependencies between modules, fan-out across the codebase, duplicate code blocks, and test coverage ratios.
+
+### 4. Sort and score findings
+
+After analysis, codelens sorts all findings by file path, then by position in the file, then by rule ID. This ordering is deterministic — two runs against unchanged source produce byte-identical output.
+
+Findings are then grouped by dimension. Each dimension gets a score from 0 to 100 based on how many findings were found and how severe they are. See [Severity and scoring](/concepts/severity-and-scoring) for the formula.
+
+### 5. Render to your chosen format
+
+The final report is written to stdout or a file in your chosen format: terminal output, JSON, SARIF 2.1.0, or Markdown. The JSON output includes the full list of findings and the per-dimension scores. See [Terminal output](/output/terminal) for the default format and the other output pages for JSON, Markdown, and SARIF.
 
 ## Incremental cache
 
-`Engine::analyze_path_cached` (used by `codelens analyze` by default and always by `codelens watch`) adds a blake3 content-hash step before parse. Files whose hash matches the cache entry at `<project_root>/.codelens-cache/v1.json` reuse cached findings without re-parsing. Project-level analyzers (`CyclicDepsAnalyzer`, `TestRatioAnalyzer`, `DuplicateCodeAnalyzer`, `VulnerableDepsAnalyzer`) always re-run because they aggregate across all files. Disable with `--no-cache` or `[history] cache = false`.
+When you run `codelens analyze` (or `codelens watch`), codelens caches results per file using a content hash. On the next run, files whose content has not changed reuse their cached findings without being re-parsed or re-analyzed. Only changed files go through the full pipeline.
 
-## Stable contracts
+Rules that aggregate across all files (cyclic dependencies, duplicate code, test ratio) always re-run, since they depend on the project as a whole.
 
-- **`schema_version`** — the JSON output is at version 2. Bumped on any breaking change to the report shape. Adding fields is non-breaking; removing or retyping a field is breaking.
-- **`rule_id`** — strings are stable once a rule ships. Renaming a rule ID is a breaking change to any baseline file that references it.
-- **Finding sort order** — `(file, span.start, rule_id)`. Two runs against unchanged source produce byte-identical output.
-- **`#[non_exhaustive]` enums** — `FunctionKind`, `Visibility`, and similar enums in `codelens-core` are non-exhaustive, so adding a variant is non-breaking; downstream code must handle a `_` arm.
+To opt out of caching, pass `--no-cache` or set `cache = false` in your `codelens.toml`.
 
-:::info
-The full long-form architecture doc lives at [https://github.com/shubhamkaushal765/codelens/blob/main/docs/architecture.md](https://github.com/shubhamkaushal765/codelens/blob/main/docs/architecture.md).
-:::
+## Stable guarantees
+
+These behaviors will not change without a version bump:
+
+- **Rule IDs** (like `SEC001-hardcoded-secret`) are stable once a rule ships. You can safely reference them in baseline files and ignore lists.
+- **Finding sort order** is `(file, position, rule_id)`. Byte-identical output across runs is guaranteed as long as source files do not change.
+- **JSON schema version** is currently 2. Adding new fields is non-breaking. Removing or renaming a field bumps the version.
+
+---
+
+## For contributors
+
+The full source-level architecture document — covering workspace layout, the two-axis extensibility contract, the `SemanticIndex` contract, parallelism details, and the incremental cache implementation — lives in the source repository:
+
+[https://github.com/shubhamkaushal765/codelens/blob/main/docs/architecture.md](https://github.com/shubhamkaushal765/codelens/blob/main/docs/architecture.md)
