@@ -32,6 +32,13 @@ codelens-docs/
 ├── src/
 │   ├── pages/index.tsx         # homepage component (overrides docs at /)
 │   ├── pages/index.module.css  # homepage styles
+│   ├── components/
+│   │   └── diagrams/           # reusable React SVG diagrams (theme-aware via --cl-* tokens)
+│   │       ├── Diagram.module.css       # shared layout / animation gates
+│   │       ├── PipelineDiagram.tsx      # 5-stage analyze pipeline (intro, architecture)
+│   │       ├── TwoAxisExtensibility.tsx # crate dependency contract (architecture)
+│   │       ├── DimensionsHexagon.tsx    # 5-dimension radial layout (concepts/dimensions)
+│   │       └── SeverityWeights.tsx      # severity weight bars (concepts/severity-and-scoring)
 │   └── css/custom.css          # global theme — full 60-30-10 semantic token system
 ├── static/
 │   └── img/
@@ -121,11 +128,26 @@ Run `node scripts/verify-contrast.mjs` to validate WCAG AA compliance for all 16
 
 ## Diagrams
 
-Two conventions apply site-wide:
+Four conventions apply site-wide. Pick the cheapest tool that conveys the concept:
 
-- **Mermaid in `docs/`** — use a `mermaid` fenced code block whenever a diagram materially aids comprehension of a process or dependency structure. Current pages with Mermaid: `intro.md`, `architecture.md`, `concepts/dimensions.md`, `concepts/analyzers-and-findings.md`, `getting-started/first-analysis.md`, `cli/show.md`, `cli/watch.md`, `cli/diff.md`, `cli/baseline.md`, `cli/lsp.md` (sequenceDiagram), `integrations/github-action.md`, `integrations/lsp.md` (sequenceDiagram), `extending/add-a-language.md`, `extending/add-an-analyzer.md`, `configuration/baselines-and-fail-on.md`.
-- **Inline SVG in `src/pages/`** — React pages use inline `<svg>` elements. Mermaid cannot be rendered inside React components that are not MDX.
-- **Standalone `.svg` in `static/img/`** — referenced via `![alt](/img/file.svg)` in MDX or via `useBaseUrl` in React. Use this when an illustration is non-procedural (annotated/labelled) and Mermaid cannot express it. Current standalone files: `codelens-flow.svg` (homepage hero), `finding-anatomy.svg` (reading-output page).
+- **Mermaid in `docs/`** — fenced `mermaid` code blocks. Best for routine flowcharts, sequences, and tree-style relationships where source-fidelity (one Mermaid diagram per concept) matters more than visual polish. Current pages: `architecture.md` (data flow), `concepts/analyzers-and-findings.md`, `getting-started/first-analysis.md`, `cli/show.md`, `cli/watch.md`, `cli/diff.md`, `cli/baseline.md`, `cli/lsp.md` (sequenceDiagram), `integrations/github-action.md`, `integrations/lsp.md` (sequenceDiagram), `extending/add-a-language.md`, `extending/add-an-analyzer.md`, `configuration/baselines-and-fail-on.md`, `intro.md` (small finding-flow diagram).
+- **Reusable React SVG components in `src/components/diagrams/`** — use when a diagram (a) appears on multiple pages, (b) needs interactivity (hover, focus, tooltips), (c) needs custom geometry that Mermaid cannot express cleanly, or (d) is the page's hero illustration. All diagram components consume only `--cl-*` semantic tokens for theme support, are SSR-safe, and gate any motion behind a client-side `prefers-reduced-motion` check. Current components:
+  - `PipelineDiagram` — embedded in `intro.md` (hero) and `architecture.md` (data-flow summary above the detailed Mermaid)
+  - `TwoAxisExtensibility` — embedded in `architecture.md`, replaces the prior Mermaid for the dependency-contract section
+  - `DimensionsHexagon` — embedded in `concepts/dimensions.md`, supersedes the prior Mermaid tree
+  - `SeverityWeights` — embedded in `concepts/severity-and-scoring.md` above the canonical weight table
+- **Inline SVG in `src/pages/`** — React pages use inline `<svg>` elements. Mermaid cannot render inside non-MDX React components; the homepage pipeline visual lives here.
+- **Standalone `.svg` in `static/img/`** — referenced via `![alt](/img/file.svg)` in MDX or via `useBaseUrl` in React. Use when an illustration is non-procedural (annotated/labelled) and neither Mermaid nor a React component is justified. Current standalone files: `codelens-flow.svg` (homepage hero), `finding-anatomy.svg` (reading-output page).
+
+### Adding a React diagram component
+
+1. Create `src/components/diagrams/<Name>.tsx`.
+2. Use `viewBox`-based responsive SVG; reference colors only via `var(--cl-...)`.
+3. Wrap with the shared `Diagram.module.css` wrapper class (or add a new wrapper rule).
+4. Provide `<title>` and `<desc>` and link them via `aria-labelledby` on the `<svg role="img">`.
+5. Gate any motion: either CSS keyframes inside `@media (prefers-reduced-motion: no-preference)`, or, for SVG SMIL (`<animateMotion>`), a client-side `useEffect` that reads `window.matchMedia('(prefers-reduced-motion: reduce)')` and conditionally renders the animated children.
+6. Import in the target MDX immediately after frontmatter: `import X from '@site/src/components/diagrams/X';` then place `<X />` inline.
+7. Run `npm run build` — `onBrokenLinks: 'throw'` plus the MDX compile gate catch most regressions.
 
 ---
 

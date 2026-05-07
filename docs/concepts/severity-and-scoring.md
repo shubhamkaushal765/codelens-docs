@@ -3,11 +3,15 @@ title: Severity and scoring
 description: The five severity levels, their weights, and the per-dimension 0–100 score formula.
 ---
 
+import SeverityWeights from '@site/src/components/diagrams/SeverityWeights';
+
 # Severity and scoring
 
 Every finding has a severity. Severities have integer weights, weights are summed per dimension, the sum is normalized by project size, and the dimension score is `100 - penalty`.
 
 ## Severity weights
+
+<SeverityWeights />
 
 | Severity   | Weight |
 | ---------- | ------ |

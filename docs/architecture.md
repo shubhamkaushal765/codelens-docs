@@ -3,6 +3,9 @@ title: Architecture
 description: A condensed tour of the codelens architecture — workspace crates, the two-axis extensibility contract, data flow, and stable contracts.
 ---
 
+import TwoAxisExtensibility from '@site/src/components/diagrams/TwoAxisExtensibility';
+import PipelineDiagram from '@site/src/components/diagrams/PipelineDiagram';
+
 # Architecture
 
 This page is a condensed end-user tour of the codelens architecture. The full long-form narrative lives in the source repo at [`docs/architecture.md`](https://github.com/shubhamkaushal765/codelens/blob/main/docs/architecture.md).
@@ -46,38 +49,19 @@ The practical consequence: cross-language analyzers in `codelens-analyzers` cons
 
 ## Two-axis extensibility (visual)
 
-```mermaid
-flowchart LR
-    CLI[codelens-cli]
+> For those who prefer it, the equivalent Mermaid diagram is in the [source repo](https://github.com/shubhamkaushal765/codelens/blob/main/docs/architecture.md).
 
-    CLI --> LR[codelens-lang-rust]
-    CLI --> LP[codelens-lang-python]
-    CLI --> LJ[codelens-lang-js]
-    CLI --> AN[codelens-analyzers]
-    CLI --> RPT[codelens-report]
-    CLI --> SHW[codelens-show]
-    CLI --> REG[codelens-registry]
-    CLI --> LSP[codelens-lsp]
-
-    LR  --> CORE
-    LP  --> CORE
-    LJ  --> CORE
-    AN  --> CORE
-    RPT --> CORE
-    SHW --> CORE
-    REG --> CORE
-    LSP --> CORE
-
-    CORE[codelens-core]:::core
-
-    classDef core fill:#1e4d8c,color:#fff,stroke:#163c6e
-```
+<TwoAxisExtensibility />
 
 `codelens-lang-*` and `codelens-analyzers` share the same level — neither imports the other.
 
 ## Data flow
 
 The pipeline for a single `codelens analyze <path>` run:
+
+<PipelineDiagram />
+
+The detailed step-by-step Mermaid below shows the sequential barriers between phases:
 
 ```mermaid
 flowchart TD

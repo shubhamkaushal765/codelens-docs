@@ -3,9 +3,13 @@ title: Introduction
 description: What codelens is and why static analysis with multi-dimensional scores beats single-axis lint.
 ---
 
+import PipelineDiagram from '@site/src/components/diagrams/PipelineDiagram';
+
 # Introduction
 
 codelens is a Rust workspace that statically analyzes source code across Rust, Python, and JavaScript/TypeScript and emits structured findings on five quality dimensions. It runs as a single CLI binary, parallelizes parsing and analysis with `rayon`, and produces deterministic output suited to both terminals and CI pipelines.
+
+<PipelineDiagram />
 
 ## Why multiple dimensions
 

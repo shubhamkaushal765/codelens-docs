@@ -37,7 +37,7 @@ The codelens source repo is the canonical source of truth: `/home/user/codelens/
 | Framework         | Docusaurus 3.x (classic preset, TypeScript config)              |
 | Content           | MDX (Markdown + JSX), with Docusaurus admonitions               |
 | Code highlighting | Prism, with `rust`, `toml`, `bash`, `json`, `python`            |
-| Diagrams          | `@docusaurus/theme-mermaid` 3.10.1 (Mermaid in MDX; inline SVG in React pages) |
+| Diagrams          | `@docusaurus/theme-mermaid` 3.10.1 (Mermaid in MDX) + reusable React SVG components in `src/components/diagrams/` |
 | Routing           | docs at site root (`routeBasePath: '/'`)                        |
 | Deployment        | GitHub Pages (`shubhamkaushal765.github.io/codelens-docs/`)     |
 | Node              | v20+ (CI uses latest stable)                                    |
@@ -51,6 +51,7 @@ The codelens source repo is the canonical source of truth: `/home/user/codelens/
 | Logo mark (aperture/lens SVG) | `static/img/logo.svg` |
 | Hero pipeline illustration | `static/img/codelens-flow.svg` |
 | Anatomy of a finding (terminal output) | `static/img/finding-anatomy.svg` |
+| Reusable React SVG diagrams | `src/components/diagrams/` (see [.agent/ARCHITECTURE.md](./.agent/ARCHITECTURE.md#diagrams)) |
 
 Brand anchor colors (full palette in [docs/design/color-system.md](./docs/design/color-system.md)):
 
@@ -62,14 +63,18 @@ Brand anchor colors (full palette in [docs/design/color-system.md](./docs/design
 
 Run `node scripts/verify-contrast.mjs` to validate WCAG AA contrast for all palette pairings.
 
-Mermaid diagrams are used across the docs to illustrate flows where prose alone is hard to parse:
+Mermaid diagrams illustrate flows where prose alone is hard to parse — see `intro.md`, `architecture.md` (data flow), `concepts/analyzers-and-findings.md`, `getting-started/first-analysis.md`, `cli/show.md`, `cli/watch.md`, `cli/diff.md`, `cli/baseline.md`, `cli/lsp.md`, `integrations/github-action.md`, `integrations/lsp.md`, `extending/add-a-language.md`, `extending/add-an-analyzer.md`, `configuration/baselines-and-fail-on.md`.
 
-- `docs/intro.md`, `docs/architecture.md`, `docs/concepts/dimensions.md`, `docs/concepts/analyzers-and-findings.md`
-- `docs/getting-started/first-analysis.md`
-- `docs/cli/show.md`, `docs/cli/watch.md`, `docs/cli/diff.md`, `docs/cli/baseline.md`, `docs/cli/lsp.md`
-- `docs/integrations/github-action.md`, `docs/integrations/lsp.md`
-- `docs/extending/add-a-language.md`, `docs/extending/add-an-analyzer.md`
-- `docs/configuration/baselines-and-fail-on.md`
+Reusable theme-aware React SVG diagrams live under `src/components/diagrams/`. They consume only `--cl-*` semantic tokens (auto dark/light), include `<title>`/`<desc>` and `aria-labelledby`, and gate motion behind `prefers-reduced-motion`. Current set:
+
+| Component | Embedded in | Purpose |
+| --------- | ----------- | ------- |
+| `PipelineDiagram` | `intro.md`, `architecture.md` | Animated 5-stage analysis pipeline |
+| `TwoAxisExtensibility` | `architecture.md` | Crate dependency contract — visual proof that lang and analyzer crates do not import each other |
+| `DimensionsHexagon` | `concepts/dimensions.md` | Pentagon layout of the 5 dimensions with hover tooltips |
+| `SeverityWeights` | `concepts/severity-and-scoring.md` | Bar visualization of the 0/1/4/12/30 weights |
+
+To add a new component, follow the checklist in [.agent/ARCHITECTURE.md → Adding a React diagram component](./.agent/ARCHITECTURE.md#adding-a-react-diagram-component).
 
 `docs/getting-started/reading-output.md` uses the standalone `static/img/finding-anatomy.svg` illustration. The homepage (`src/pages/index.tsx`) uses inline SVG for the pipeline visual, not Mermaid, because it is a React component.
 
