@@ -1,84 +1,684 @@
 /**
- * Global theme overrides for the codelens documentation site.
- * Replaces the default green Infima palette with a steel-blue/slate palette.
+ * codelens documentation — global theme
+ *
+ * 60-30-10 color rule
+ * ───────────────────
+ *  60% dominant   — page background, reading surface, content area
+ *                   tokens: --cl-bg-*
+ *  30% secondary  — navbar, sidebar, TOC, code blocks, cards, panels
+ *                   tokens: --cl-surface-*, --cl-border-*
+ *  10% accent     — links, primary buttons, active states, focus rings, CTAs
+ *                   tokens: --cl-accent-*, --cl-text-link*
+ *
+ * Token naming: --cl-{layer}-{role}-{variant}
+ *
+ * Token hierarchy:
+ *   raw ramps (--codelens-blue-N, --codelens-amber-N, --codelens-slate-N)
+ *     → semantic tokens (--cl-*)
+ *       → Infima/Docusaurus variables (--ifm-*)
+ *
+ * Components MUST consume only --cl-* or --ifm-* tokens, never raw hex.
+ *
+ * WCAG AA verified by: node scripts/verify-contrast.mjs
  */
 
-/* ── Light mode ── */
+/* ── Google Fonts — Inter ── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* ─────────────────────────────────────────────────────────────────────────── */
+/* Light mode (default)                                                        */
+/* ─────────────────────────────────────────────────────────────────────────── */
+
 :root {
-  /* Primary: steel blue — dependable, infrastructure-grade */
-  --ifm-color-primary:          #1e4d8c;
-  --ifm-color-primary-dark:     #1b4580;
-  --ifm-color-primary-darker:   #194073;
-  --ifm-color-primary-darkest:  #133060;
-  --ifm-color-primary-light:    #235598;
+  /* ── Brand tokens — raw ramps, do not consume directly in components ── */
+
+  /* Steel-blue ramp */
+  --codelens-blue-50:  #eef4ff;
+  --codelens-blue-100: #d9e8ff;
+  --codelens-blue-200: #b3d1ff;
+  --codelens-blue-300: #7aacf7;
+  --codelens-blue-400: #4d88e8;
+  --codelens-blue-500: #2860c8;
+  --codelens-blue-600: #1e4d8c;
+  --codelens-blue-700: #1a4480;
+  --codelens-blue-800: #163c6e;
+  --codelens-blue-900: #102d54;
+
+  /* Amber accent ramp */
+  --codelens-amber-50:  #fffbea;
+  --codelens-amber-100: #fef3c7;
+  --codelens-amber-200: #fde68a;
+  --codelens-amber-300: #f4c04a;
+  --codelens-amber-400: #e0a93a;
+  --codelens-amber-500: #c8881a;
+  --codelens-amber-600: #9a6200;
+  --codelens-amber-700: #7c4f00;
+  --codelens-amber-800: #5e3b00;
+  --codelens-amber-900: #3d2700;
+
+  /* Slate neutral ramp */
+  --codelens-slate-50:  #f7f9fc;
+  --codelens-slate-100: #eef2f8;
+  --codelens-slate-200: #dbe2ec;
+  --codelens-slate-300: #bec8d9;
+  --codelens-slate-400: #8b949e;
+  --codelens-slate-500: #6b7890;
+  --codelens-slate-600: #4b5563;
+  --codelens-slate-700: #374151;
+  --codelens-slate-800: #1f2937;
+  --codelens-slate-900: #111827;
+
+  /* ── 60% — dominant surfaces ── */
+  --cl-bg-canvas:  #f7f9fc;   /* very-slightly-tinted off-white — outer wrap */
+  --cl-bg-default: #ffffff;   /* main content surface */
+  --cl-bg-subtle:  #eef2f8;   /* subtle tint for hover/selected backgrounds */
+
+  /* ── 30% — secondary surfaces ── */
+  --cl-surface-nav:      #ffffff;
+  --cl-surface-sidebar:  #f4f7fb;
+  --cl-surface-card:     #eef2f8;
+  --cl-surface-code:     #f1f4f9;
+  --cl-surface-elevated: #ffffff;
+  --cl-border-default:   #dbe2ec;
+  --cl-border-muted:     #eef2f8;
+
+  /* ── 10% — accent ── */
+  --cl-accent-primary:        #1a4480;  /* AA-verified on white (9.62:1) */
+  --cl-accent-primary-hover:  #163c6e;
+  --cl-accent-secondary:      #9a6200;  /* amber, AA-verified on white */
+  --cl-accent-secondary-hover:#7c4f00;
+  --cl-focus-ring:            #1a4480;
+
+  /* ── Typography ── */
+  --cl-text-primary:   #111827;   /* 17.7:1 on white */
+  --cl-text-secondary: #374151;   /* ~12:1 on white */
+  --cl-text-muted:     #4b5563;   /* 7.6:1 on white — AA pass */
+  --cl-text-inverse:   #ffffff;
+  --cl-text-link:      #1a4480;
+  --cl-text-link-hover:#163c6e;
+
+  /* ── Semantic state tokens — admonitions ── */
+  --cl-state-info-bg:      #eff6ff;
+  --cl-state-info-border:  #2860c8;
+  --cl-state-info-text:    #1a4480;
+
+  --cl-state-tip-bg:       #f0fdf4;
+  --cl-state-tip-border:   #16a34a;
+  --cl-state-tip-text:     #14532d;
+
+  --cl-state-note-bg:      #f8fafc;
+  --cl-state-note-border:  #6b7890;
+  --cl-state-note-text:    #374151;
+
+  --cl-state-caution-bg:   #fffbea;
+  --cl-state-caution-border: #c8881a;
+  --cl-state-caution-text: #7c4f00;
+
+  --cl-state-warning-bg:   #fef2f2;
+  --cl-state-warning-border: #dc2626;
+  --cl-state-warning-text: #7f1d1d;
+
+  --cl-state-danger-bg:    #fef2f2;
+  --cl-state-danger-border: #991b1b;
+  --cl-state-danger-text:  #7f1d1d;
+
+  /* ── Code syntax (Prism overrides) ── */
+  --cl-code-bg:     #f1f4f9;
+  --cl-code-border: #dbe2ec;
+  --cl-code-text:   #111827;
+
+  --cl-syntax-keyword:  #1a4480;
+  --cl-syntax-string:   #16a34a;
+  --cl-syntax-number:   #9a6200;
+  --cl-syntax-comment:  #6b7890;
+  --cl-syntax-function: #7c3aed;
+  --cl-syntax-type:     #0369a1;
+  --cl-syntax-operator: #374151;
+  --cl-syntax-variable: #1f2937;
+
+  /* ── Infima / Docusaurus variables mapped from semantic tokens ── */
+
+  /* Primary color ladder */
+  --ifm-color-primary:          #1a4480;
+  --ifm-color-primary-dark:     #163c6e;
+  --ifm-color-primary-darker:   #123460;
+  --ifm-color-primary-darkest:  #0e2a50;
+  --ifm-color-primary-light:    #1e4d8c;
   --ifm-color-primary-lighter:  #2860aa;
   --ifm-color-primary-lightest: #3472bf;
 
-  /* Brand accent — amber focal point */
-  --codelens-accent: #d4a017;
+  /* Backgrounds */
+  --ifm-background-color:         var(--cl-bg-default);
+  --ifm-background-surface-color: var(--cl-surface-sidebar);
 
-  /* Neutral surfaces — slate-leaning, not warm-gray */
-  --ifm-background-color:          #ffffff;
-  --ifm-background-surface-color:  #f4f6f9;
-  --ifm-color-emphasis-100:        #eef1f6;
-  --ifm-color-emphasis-200:        #d9dfe9;
-  --ifm-color-emphasis-300:        #bec8d9;
-  --ifm-color-emphasis-700:        #4b5a72;
-  --ifm-color-emphasis-900:        #1a2332;
+  /* Emphasis scale (used by Infima internally) */
+  --ifm-color-emphasis-100: var(--codelens-slate-100);
+  --ifm-color-emphasis-200: var(--codelens-slate-200);
+  --ifm-color-emphasis-300: var(--codelens-slate-300);
+  --ifm-color-emphasis-400: var(--codelens-slate-400);
+  --ifm-color-emphasis-500: var(--codelens-slate-500);
+  --ifm-color-emphasis-600: var(--codelens-slate-600);
+  --ifm-color-emphasis-700: var(--codelens-slate-700);
+  --ifm-color-emphasis-800: var(--codelens-slate-800);
+  --ifm-color-emphasis-900: var(--codelens-slate-900);
 
-  /* Typography — professional system stack, no font download */
-  --ifm-font-family-base: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --ifm-font-family-monospace: ui-monospace, "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  /* Navbar */
+  --ifm-navbar-background-color:  var(--cl-surface-nav);
+  --ifm-navbar-shadow:            0 1px 0 var(--cl-border-default);
 
-  /* Headings — slightly heavier, tighter line-height */
+  /* Footer */
+  --ifm-footer-background-color:  var(--codelens-slate-900);
+
+  /* Sidebar menu */
+  --ifm-menu-color:                    var(--cl-text-secondary);
+  --ifm-menu-color-active:             var(--cl-accent-primary);
+  --ifm-menu-color-background-active:  var(--cl-bg-subtle);
+  --ifm-menu-color-background-hover:   var(--cl-bg-subtle);
+
+  /* Links */
+  --ifm-link-color:       var(--cl-text-link);
+  --ifm-link-hover-color: var(--cl-text-link-hover);
+
+  /* Code */
+  --ifm-code-background:  var(--cl-code-bg);
+  --ifm-pre-background:   var(--cl-code-bg);
+  --ifm-code-border-radius: 4px;
+  --ifm-pre-border-radius: 6px;
+
+  /* Link decoration */
+  --ifm-link-decoration:       none;
+  --ifm-link-hover-decoration: underline;
+
+  /* TOC */
+  --ifm-toc-border-color: var(--cl-border-default);
+
+  /* Blockquote */
+  --ifm-blockquote-color: var(--cl-text-secondary);
+
+  /* Table */
+  --ifm-table-stripe-background: var(--cl-bg-canvas);
+
+  /* Semantic state colors */
+  --ifm-color-success: #16a34a;
+  --ifm-color-info:    #2860c8;
+  --ifm-color-warning: #c8881a;
+  --ifm-color-danger:  #dc2626;
+
+  /* Highlighted code line */
+  --docusaurus-highlighted-code-line-bg: rgba(26, 68, 128, 0.08);
+
+  /* Tabs */
+  --ifm-tabs-color:               var(--cl-text-secondary);
+  --ifm-tabs-color-active:        var(--cl-accent-primary);
+  --ifm-tabs-color-active-border: var(--cl-accent-primary);
+
+  /* ── Typography ── */
+  --ifm-font-family-base:
+    "Inter", system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --ifm-font-family-monospace:
+    ui-monospace, "SFMono-Regular", Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
+
+  --ifm-font-size-base:    1rem;
+  --ifm-line-height-base:  1.65;  /* long-read optimized */
+
   --ifm-heading-font-weight: 700;
   --ifm-h1-font-size:        2.2rem;
   --ifm-h2-font-size:        1.6rem;
   --ifm-h3-font-size:        1.2rem;
   --ifm-heading-line-height: 1.25;
 
-  /* Code */
-  --ifm-code-font-size: 93%;
-  --ifm-code-border-radius: 4px;
-  --ifm-pre-border-radius: 6px;
-  --docusaurus-highlighted-code-line-bg: rgba(30, 77, 140, 0.08);
-
-  /* Links — underline only on hover for cleaner prose */
-  --ifm-link-decoration: none;
-  --ifm-link-hover-decoration: underline;
-
-  /* Subtle code-block border in light mode */
-  --ifm-pre-background: #f0f4f9;
+  --ifm-code-font-size: 0.93em;
 }
 
-/* ── Dark mode ── */
+/* ─────────────────────────────────────────────────────────────────────────── */
+/* Dark mode                                                                   */
+/* ─────────────────────────────────────────────────────────────────────────── */
+
 [data-theme='dark'] {
-  --ifm-color-primary:          #5b8def;
-  --ifm-color-primary-dark:     #4a7de6;
+  /* ── 60% — dominant surfaces ── */
+  --cl-bg-canvas:  #0a0e15;
+  --cl-bg-default: #0d1117;
+  --cl-bg-subtle:  #111827;
+
+  /* ── 30% — secondary surfaces ── */
+  --cl-surface-nav:      #0d1117;
+  --cl-surface-sidebar:  #11161f;
+  --cl-surface-card:     #161c28;
+  --cl-surface-code:     #0f141d;
+  --cl-surface-elevated: #161c28;
+  --cl-border-default:   #222a38;
+  --cl-border-muted:     #1a2030;
+
+  /* ── 10% — accent ── */
+  --cl-accent-primary:        #7aa7f5;  /* AA-verified on #0d1117 (7.82:1) */
+  --cl-accent-primary-hover:  #9bbff8;
+  --cl-accent-secondary:      #e0a93a;  /* amber lifted for AA on dark */
+  --cl-accent-secondary-hover:#f4c04a;
+  --cl-focus-ring:            #7aa7f5;
+
+  /* ── Typography ── */
+  --cl-text-primary:   #e6edf3;   /* 16:1 on #0d1117 */
+  --cl-text-secondary: #b0bec5;
+  --cl-text-muted:     #8b949e;   /* 6.15:1 on #0d1117 — AA pass */
+  --cl-text-inverse:   #0d1117;
+  --cl-text-link:      #7aa7f5;
+  --cl-text-link-hover:#9bbff8;
+
+  /* ── Semantic state tokens — admonitions ── */
+  --cl-state-info-bg:       #0d1e35;
+  --cl-state-info-border:   #4d88e8;
+  --cl-state-info-text:     #7aa7f5;
+
+  --cl-state-tip-bg:        #0a1f14;
+  --cl-state-tip-border:    #4ade80;
+  --cl-state-tip-text:      #86efac;
+
+  --cl-state-note-bg:       #111827;
+  --cl-state-note-border:   #6b7890;
+  --cl-state-note-text:     #b0bec5;
+
+  --cl-state-caution-bg:    #1f1400;
+  --cl-state-caution-border:#e0a93a;
+  --cl-state-caution-text:  #f4c04a;
+
+  --cl-state-warning-bg:    #1f0808;
+  --cl-state-warning-border:#f87171;
+  --cl-state-warning-text:  #fca5a5;
+
+  --cl-state-danger-bg:     #1f0808;
+  --cl-state-danger-border: #ef4444;
+  --cl-state-danger-text:   #fca5a5;
+
+  /* ── Code syntax (Prism overrides) ── */
+  --cl-code-bg:     #0f141d;
+  --cl-code-border: #222a38;
+  --cl-code-text:   #e6edf3;
+
+  --cl-syntax-keyword:  #7aa7f5;
+  --cl-syntax-string:   #86efac;
+  --cl-syntax-number:   #f4c04a;
+  --cl-syntax-comment:  #6b7890;
+  --cl-syntax-function: #c4b5fd;
+  --cl-syntax-type:     #67c3f3;
+  --cl-syntax-operator: #b0bec5;
+  --cl-syntax-variable: #e6edf3;
+
+  /* ── Infima / Docusaurus variables ── */
+
+  --ifm-color-primary:          #7aa7f5;
+  --ifm-color-primary-dark:     #4d88e8;
   --ifm-color-primary-darker:   #3e73df;
-  --ifm-color-primary-darkest:  #2860cc;
-  --ifm-color-primary-light:    #6e9cf2;
-  --ifm-color-primary-lighter:  #7eaaf4;
-  --ifm-color-primary-lightest: #9bbff8;
+  --ifm-color-primary-darkest:  #2860c8;
+  --ifm-color-primary-light:    #9bbff8;
+  --ifm-color-primary-lighter:  #aecffa;
+  --ifm-color-primary-lightest: #c6dffc;
 
-  --ifm-background-color:         #111827;
-  --ifm-background-surface-color: #1a2436;
-  --ifm-color-emphasis-100:       #1e2d44;
-  --ifm-color-emphasis-200:       #2a3d56;
-  --ifm-color-emphasis-300:       #3a5070;
-  --ifm-color-emphasis-700:       #9baec8;
-  --ifm-color-emphasis-900:       #e0e8f4;
+  --ifm-background-color:         var(--cl-bg-default);
+  --ifm-background-surface-color: var(--cl-surface-sidebar);
 
-  --docusaurus-highlighted-code-line-bg: rgba(91, 141, 239, 0.15);
-  --ifm-pre-background: #0d1826;
+  --ifm-color-emphasis-100: #161c28;
+  --ifm-color-emphasis-200: #1a2436;
+  --ifm-color-emphasis-300: #222a38;
+  --ifm-color-emphasis-400: #2d3748;
+  --ifm-color-emphasis-500: #4b5563;
+  --ifm-color-emphasis-600: #6b7890;
+  --ifm-color-emphasis-700: #8b949e;
+  --ifm-color-emphasis-800: #b0bec5;
+  --ifm-color-emphasis-900: #e6edf3;
+
+  --ifm-navbar-background-color:  var(--cl-surface-nav);
+  --ifm-navbar-shadow:            0 1px 0 var(--cl-border-default);
+
+  --ifm-footer-background-color:  #0a0e15;
+
+  --ifm-menu-color:                    var(--cl-text-secondary);
+  --ifm-menu-color-active:             var(--cl-accent-primary);
+  --ifm-menu-color-background-active:  #161c28;
+  --ifm-menu-color-background-hover:   #111827;
+
+  --ifm-link-color:       var(--cl-text-link);
+  --ifm-link-hover-color: var(--cl-text-link-hover);
+
+  --ifm-code-background:  var(--cl-code-bg);
+  --ifm-pre-background:   var(--cl-code-bg);
+
+  --ifm-toc-border-color:         var(--cl-border-default);
+  --ifm-blockquote-color:         var(--cl-text-secondary);
+  --ifm-table-stripe-background:  rgba(255, 255, 255, 0.03);
+
+  --ifm-color-success: #4ade80;
+  --ifm-color-info:    #7aa7f5;
+  --ifm-color-warning: #e0a93a;
+  --ifm-color-danger:  #f87171;
+
+  --docusaurus-highlighted-code-line-bg: rgba(122, 167, 245, 0.12);
+
+  --ifm-tabs-color:               var(--cl-text-secondary);
+  --ifm-tabs-color-active:        var(--cl-accent-primary);
+  --ifm-tabs-color-active-border: var(--cl-accent-primary);
 }
 
-/* ── Code blocks — subtle border ── */
-pre.prism-code {
-  border: 1px solid var(--ifm-color-emphasis-200);
-}
+/* ─────────────────────────────────────────────────────────────────────────── */
+/* Component overrides                                                         */
+/* ─────────────────────────────────────────────────────────────────────────── */
 
-/* ── Headings — slightly tighter ── */
+/* Headings */
 h1, h2, h3 {
   letter-spacing: -0.01em;
+}
+
+/* ── Code blocks ── */
+pre.prism-code {
+  background: var(--cl-code-bg);
+  border: 1px solid var(--cl-code-border);
+}
+
+code {
+  background: var(--cl-code-bg);
+  border: 1px solid var(--cl-border-muted);
+  color: var(--cl-code-text);
+  font-family: var(--ifm-font-family-monospace);
+  font-size: var(--ifm-code-font-size);
+  padding: 0.1em 0.35em;
+  border-radius: var(--ifm-code-border-radius);
+}
+
+pre code {
+  /* Inside a code block — no extra border, handled by pre */
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+
+/* ── Navbar ── */
+.navbar {
+  background: var(--cl-surface-nav);
+  box-shadow: 0 1px 0 var(--cl-border-default);
+}
+
+.navbar__link {
+  color: var(--cl-text-secondary);
+  transition: color 150ms ease;
+}
+
+.navbar__link:hover,
+.navbar__link--active {
+  color: var(--cl-accent-primary);
+}
+
+/* ── Sidebar ── */
+.theme-doc-sidebar-container {
+  background: var(--cl-surface-sidebar);
+  border-right: 1px solid var(--cl-border-default);
+}
+
+.menu {
+  background: var(--cl-surface-sidebar);
+}
+
+.menu__link {
+  color: var(--cl-text-secondary);
+  transition: color 150ms ease, background 150ms ease;
+  border-radius: 4px;
+}
+
+.menu__link:hover {
+  background: var(--ifm-menu-color-background-hover);
+  color: var(--cl-text-primary);
+}
+
+/* Active sidebar item — accent left border */
+.menu__link--active {
+  color: var(--cl-accent-primary);
+  background: var(--ifm-menu-color-background-active);
+  border-left: 2px solid var(--cl-accent-primary);
+  padding-left: calc(var(--ifm-menu-link-padding-horizontal) - 2px);
+  font-weight: 600;
+}
+
+/* ── Table of contents ── */
+.table-of-contents {
+  border-left: 1px solid var(--cl-border-default);
+}
+
+.table-of-contents__link {
+  color: var(--cl-text-muted);
+  transition: color 150ms ease;
+}
+
+.table-of-contents__link:hover,
+.table-of-contents__link--active {
+  color: var(--cl-accent-primary);
+}
+
+/* ── Admonitions ── */
+.alert {
+  border-left: 4px solid;
+  border-radius: 6px;
+}
+
+.alert--info {
+  background: var(--cl-state-info-bg);
+  border-color: var(--cl-state-info-border);
+  color: var(--cl-state-info-text);
+}
+
+.alert--success {
+  background: var(--cl-state-tip-bg);
+  border-color: var(--cl-state-tip-border);
+  color: var(--cl-state-tip-text);
+}
+
+.alert--secondary {
+  background: var(--cl-state-note-bg);
+  border-color: var(--cl-state-note-border);
+  color: var(--cl-state-note-text);
+}
+
+.alert--warning {
+  background: var(--cl-state-caution-bg);
+  border-color: var(--cl-state-caution-border);
+  color: var(--cl-state-caution-text);
+}
+
+.alert--danger {
+  background: var(--cl-state-danger-bg);
+  border-color: var(--cl-state-danger-border);
+  color: var(--cl-state-danger-text);
+}
+
+/* ── Tabs ── */
+.tabs__item {
+  color: var(--ifm-tabs-color);
+  transition: color 150ms ease, border-color 150ms ease;
+  border-bottom: 2px solid transparent;
+}
+
+.tabs__item:hover {
+  color: var(--cl-accent-primary);
+  border-bottom-color: var(--cl-border-default);
+}
+
+.tabs__item--active {
+  color: var(--ifm-tabs-color-active);
+  border-bottom-color: var(--ifm-tabs-color-active-border);
+  font-weight: 600;
+}
+
+/* ── Buttons ── */
+.button--primary {
+  background: var(--cl-accent-primary);
+  border-color: var(--cl-accent-primary);
+  color: var(--cl-text-inverse);
+  transition: background 150ms ease, border-color 150ms ease;
+}
+
+.button--primary:hover {
+  background: var(--cl-accent-primary-hover);
+  border-color: var(--cl-accent-primary-hover);
+  color: var(--cl-text-inverse);
+}
+
+.button--secondary {
+  border-color: var(--cl-accent-primary);
+  color: var(--cl-accent-primary);
+  transition: background 150ms ease, color 150ms ease;
+}
+
+.button--secondary:hover {
+  background: var(--cl-bg-subtle);
+  color: var(--cl-accent-primary-hover);
+}
+
+/* ── Links ── */
+a {
+  color: var(--cl-text-link);
+  transition: color 150ms ease;
+}
+
+a:hover {
+  color: var(--cl-text-link-hover);
+}
+
+/* ── Selection ── */
+::selection {
+  background: rgba(26, 68, 128, 0.15);
+  color: var(--cl-text-primary);
+}
+
+[data-theme='dark'] ::selection {
+  background: rgba(122, 167, 245, 0.2);
+}
+
+/* ── Focus ring ── */
+:focus-visible {
+  outline: 2px solid var(--cl-focus-ring);
+  outline-offset: 2px;
+}
+
+/* ── Blockquote ── */
+blockquote {
+  border-left: 3px solid var(--cl-border-default);
+  color: var(--cl-text-secondary);
+  background: var(--cl-bg-canvas);
+  padding: 0.75rem 1rem;
+  border-radius: 0 4px 4px 0;
+}
+
+/* ── Tables ── */
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+thead {
+  background: var(--cl-surface-card);
+}
+
+th {
+  color: var(--cl-text-primary);
+  font-weight: 600;
+  border-bottom: 2px solid var(--cl-border-default);
+}
+
+td, th {
+  border: 1px solid var(--cl-border-default);
+  padding: 0.5rem 0.75rem;
+}
+
+tr:nth-child(even) {
+  background: var(--ifm-table-stripe-background);
+}
+
+/* ── API method badges ── */
+.api-method {
+  display: inline-block;
+  border-radius: 4px;
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 0.2em 0.55em;
+  text-transform: uppercase;
+  vertical-align: middle;
+}
+
+.api-method--get {
+  background: var(--cl-state-tip-bg);
+  border: 1px solid var(--cl-state-tip-border);
+  color: var(--cl-state-tip-text);
+}
+
+.api-method--post {
+  background: var(--cl-state-info-bg);
+  border: 1px solid var(--cl-state-info-border);
+  color: var(--cl-state-info-text);
+}
+
+.api-method--put {
+  background: var(--cl-state-caution-bg);
+  border: 1px solid var(--cl-state-caution-border);
+  color: var(--cl-state-caution-text);
+}
+
+.api-method--patch {
+  background: var(--cl-state-note-bg);
+  border: 1px solid var(--cl-state-note-border);
+  color: var(--cl-state-note-text);
+}
+
+.api-method--delete {
+  background: var(--cl-state-danger-bg);
+  border: 1px solid var(--cl-state-danger-border);
+  color: var(--cl-state-danger-text);
+}
+
+/* ── Hero gradient utility — for hero/CTA panels only ── */
+.cl-hero-gradient {
+  background: linear-gradient(
+    135deg,
+    var(--cl-accent-primary) 0%,
+    var(--codelens-slate-700) 100%
+  );
+}
+
+/* ── DocSearch / Algolia search bar ── */
+.DocSearch-Button {
+  background: var(--cl-surface-card);
+  border: 1px solid var(--cl-border-default);
+  color: var(--cl-text-muted);
+  transition: border-color 150ms ease, background 150ms ease;
+}
+
+.DocSearch-Button:hover {
+  border-color: var(--cl-accent-primary);
+  background: var(--cl-bg-subtle);
+}
+
+.DocSearch-Modal {
+  background: var(--cl-bg-default);
+  border: 1px solid var(--cl-border-default);
+}
+
+.DocSearch-SearchBar {
+  background: var(--cl-surface-card);
+  border-bottom: 1px solid var(--cl-border-default);
+}
+
+.DocSearch-Hit-Container {
+  background: var(--cl-bg-default);
+}
+
+.DocSearch-Hit[aria-selected='true'] a {
+  background: var(--cl-bg-subtle);
+}
+
+.DocSearch-Hit-title {
+  color: var(--cl-text-primary);
+}
+
+.DocSearch-Hit-path {
+  color: var(--cl-text-muted);
 }

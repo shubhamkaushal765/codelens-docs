@@ -174,6 +174,7 @@ Rules:
 - Keep node labels concise (≤ 4 words); the surrounding prose explains the detail.
 - Choose `flowchart TD` for top-down processes and `flowchart LR` for left-to-right dependency graphs.
 - Mermaid in MDX requires `@docusaurus/theme-mermaid` and `markdown.mermaid: true` in `docusaurus.config.ts` — both are already configured.
+- Diagram fills must use hex values from the design token system. The mapping from semantic token to hex is documented in [.agent/DESIGN.md](./DESIGN.md) and [.agent/CONVENTIONS.md](./CONVENTIONS.md).
 
 ```markdown
 ```mermaid

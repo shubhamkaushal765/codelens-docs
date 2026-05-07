@@ -20,6 +20,7 @@ The codelens source repo is the canonical source of truth: `/home/user/codelens/
 | Run / build / preview locally       | [.agent/DEV.md](./.agent/DEV.md)                             |
 | Follow doc style                    | [.agent/DOCS.md](./.agent/DOCS.md)                           |
 | Follow code conventions             | [.agent/CONVENTIONS.md](./.agent/CONVENTIONS.md)             |
+| Follow the design system            | [docs/design/color-system.md](./docs/design/color-system.md) and [.agent/DESIGN.md](./.agent/DESIGN.md) |
 | Author or update content            | `docs/` — sidebar order in [sidebars.ts](./sidebars.ts)      |
 | The codelens source repo            | `/home/user/codelens/`                                       |
 | CLI subcommand reference pages      | `docs/cli/`                                                  |
@@ -50,9 +51,16 @@ The codelens source repo is the canonical source of truth: `/home/user/codelens/
 | Logo mark (aperture/lens SVG) | `static/img/logo.svg` |
 | Hero pipeline illustration | `static/img/codelens-flow.svg` |
 | Anatomy of a finding (terminal output) | `static/img/finding-anatomy.svg` |
-| Palette — light primary | `#1e4d8c` (steel blue) |
-| Palette — dark primary | `#5b8def` |
-| Palette — accent | `#d4a017` (amber) |
+
+Brand anchor colors (full palette in [docs/design/color-system.md](./docs/design/color-system.md)):
+
+| Role | Light | Dark |
+| ---- | ----- | ---- |
+| Primary accent | `#1a4480` (steel blue) | `#7aa7f5` |
+| Secondary accent | `#9a6200` (amber) | `#e0a93a` |
+| Body text | `#111827` | `#e6edf3` |
+
+Run `node scripts/verify-contrast.mjs` to validate WCAG AA contrast for all palette pairings.
 
 Mermaid diagrams are used across the docs to illustrate flows where prose alone is hard to parse:
 

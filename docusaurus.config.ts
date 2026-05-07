@@ -102,17 +102,18 @@ const config: Config = {
       },
       options: {
         themeVariables: {
-          primaryColor: '#1e4d8c',
-          primaryTextColor: '#ffffff',
-          primaryBorderColor: '#163c6e',
-          lineColor: '#4b5a72',
-          secondaryColor: '#f0f4f9',
-          tertiaryColor: '#eef1f6',
-          edgeLabelBackground: '#ffffff',
-          clusterBkg: '#eef1f6',
-          titleColor: '#1a2332',
-          nodeBorder: '#1e4d8c',
-          mainBkg: '#f0f4f9',
+          /* Light mermaid theme — echoes the 60-30-10 palette */
+          primaryColor:        '#1a4480',  /* --cl-accent-primary */
+          primaryTextColor:    '#ffffff',  /* --cl-text-inverse */
+          primaryBorderColor:  '#163c6e',  /* --cl-accent-primary-hover */
+          lineColor:           '#6b7890',  /* --codelens-slate-500 */
+          secondaryColor:      '#f1f4f9',  /* --cl-surface-code */
+          tertiaryColor:       '#eef2f8',  /* --cl-surface-card */
+          edgeLabelBackground: '#ffffff',  /* --cl-bg-default */
+          clusterBkg:          '#eef2f8',  /* --cl-surface-card */
+          titleColor:          '#111827',  /* --cl-text-primary */
+          nodeBorder:          '#1a4480',  /* --cl-accent-primary */
+          mainBkg:             '#f1f4f9',  /* --cl-surface-code */
         },
       },
     },

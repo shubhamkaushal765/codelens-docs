@@ -12,9 +12,13 @@ codelens-docs/
 ├── sidebars.ts                 # IA — explicit sidebar tree
 ├── package.json                # deps + scripts
 ├── tsconfig.json               # TS config (extends @docusaurus/tsconfig)
+├── scripts/
+│   └── verify-contrast.mjs    # WCAG AA contrast verification (zero deps, node ES module)
 ├── docs/                       # MDX content tree
 │   ├── intro.md                # /intro  (Mermaid: finding flow)
 │   ├── architecture.md         # /architecture  (Mermaid: data flow + crate graph)
+│   ├── design/
+│   │   └── color-system.md     # /design/color-system  (60-30-10 palette, tokens, WCAG table)
 │   ├── getting-started/        # /getting-started/*  (first-analysis: Mermaid; reading-output: finding-anatomy.svg)
 │   ├── concepts/               # /concepts/*
 │   │   ├── dimensions.md       # (Mermaid: dimensions → rules tree)
@@ -28,10 +32,10 @@ codelens-docs/
 ├── src/
 │   ├── pages/index.tsx         # homepage component (overrides docs at /)
 │   ├── pages/index.module.css  # homepage styles
-│   └── css/custom.css          # global theme overrides (steel-blue palette)
+│   └── css/custom.css          # global theme — full 60-30-10 semantic token system
 ├── static/
 │   └── img/
-│       ├── logo.svg            # aperture/lens mark (primary #1e4d8c, accent #d4a017)
+│       ├── logo.svg            # aperture/lens mark (primary #1a4480, accent #9a6200)
 │       ├── logo-dark.svg       # dark-mode logo variant
 │       ├── codelens-flow.svg   # hero pipeline illustration
 │       ├── finding-anatomy.svg # labelled terminal-finding illustration (reading-output)
@@ -63,6 +67,7 @@ codelens-docs/
 | `/rules/`                        | `docs/rules/index.md`                        |
 | `/rules/MAINT001-cyclomatic`     | `docs/rules/MAINT001-cyclomatic.md`          |
 | `/architecture`                  | `docs/architecture.md`                       |
+| `/design/color-system`           | `docs/design/color-system.md`                |
 
 ---
 
@@ -95,21 +100,24 @@ A green `npm run build` is the test signal — there is no separate test runner.
 
 ## Theming
 
-`src/css/custom.css` holds global overrides. The default Docusaurus theme is used otherwise; no custom theme components are layered on top.
+`src/css/custom.css` holds the full 60-30-10 semantic token system. The default Docusaurus theme is used otherwise; no custom theme components are layered on top. Full design system documentation: [docs/design/color-system.md](../docs/design/color-system.md) and [.agent/DESIGN.md](./DESIGN.md).
 
 `themeConfig.colorMode.respectPrefersColorScheme = true` follows the OS dark-mode setting on first load.
 
 `themeConfig.prism.additionalLanguages` registers `rust`, `toml`, `bash`, `json`, `python` so code fences highlight correctly. Default Prism does not ship Rust or TOML.
 
-**Palette**
+**Palette** — key anchor values (see [docs/design/color-system.md](../docs/design/color-system.md) for the full token table):
 
-| Variable | Light | Dark |
-| -------- | ----- | ---- |
-| `--ifm-color-primary` | `#1e4d8c` | `#5b8def` |
-| `--codelens-accent` | `#d4a017` | (same) |
-| Background | white / `#f4f6f9` | `#111827` / `#1a2436` |
+| Token | Light | Dark |
+| ----- | ----- | ---- |
+| `--cl-accent-primary` / `--ifm-color-primary` | `#1a4480` | `#7aa7f5` |
+| `--cl-accent-secondary` | `#9a6200` | `#e0a93a` |
+| `--cl-bg-default` | `#ffffff` | `#0d1117` |
+| `--cl-text-primary` | `#111827` | `#e6edf3` |
 
-**Mermaid** is configured in `themeConfig.mermaid` with `themeVariables` that echo the steel-blue palette. The `markdown.mermaid: true` flag enables Mermaid fences in MDX. `@docusaurus/theme-mermaid` is the only added dependency.
+Run `node scripts/verify-contrast.mjs` to validate WCAG AA compliance for all 16 contrast pairings.
+
+**Mermaid** is configured in `themeConfig.mermaid` with `themeVariables` that echo the semantic palette (using the same hex values as `--cl-*` tokens). The `markdown.mermaid: true` flag enables Mermaid fences in MDX. `@docusaurus/theme-mermaid` is the only added dependency.
 
 ## Diagrams
 

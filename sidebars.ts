@@ -145,6 +145,11 @@ const sidebars: SidebarsConfig = {
         'extending/add-an-analyzer',
       ],
     },
+    {
+      type: 'category',
+      label: 'Design',
+      items: ['design/color-system'],
+    },
     'architecture',
   ],
 };

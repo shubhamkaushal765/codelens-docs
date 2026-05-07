@@ -87,6 +87,15 @@ configuration notes, and fix guidance.
 - CSS goes in `*.module.css` files; do not inline styles unless purely cosmetic and one-off.
 - Imports order: react/docusaurus → third-party → internal alias → relative.
 
+### CSS / styling
+
+- Never hardcode hex values in CSS. Always use `--cl-*` semantic tokens.
+- Raw ramp tokens (`--codelens-blue-N`, `--codelens-slate-N`, `--codelens-amber-N`) are for deriving semantic tokens only — not for direct use in components.
+- Keep all hover/focus transition durations at `150ms ease`. Never exceed `150ms`.
+- Use `--cl-focus-ring` for focus outlines. Never suppress focus outlines with `outline: none`.
+- Respect dark mode: every color you set must have a corresponding value in `[data-theme='dark']` (either via a `--cl-*` variable that already has a dark value, or an explicit override).
+- Full design system contract: [.agent/DESIGN.md](./DESIGN.md).
+
 ---
 
 ## Dependency policy
@@ -122,12 +131,18 @@ Add a diagram only when it materially aids comprehension that prose alone cannot
 
 ### Palette tokens to use in diagrams
 
-| Purpose | Value |
-| ------- | ----- |
-| Primary / node fill | `#1e4d8c` (light) / `#5b8def` (dark) |
-| Accent / focal element | `#d4a017` |
-| Edge / line color | `#4b5a72` |
-| Background surface | `#f0f4f9` |
+Use semantic CSS variable names. For SVG-portable cases where CSS variables are not available, the hex equivalents are noted in parentheses.
+
+| Purpose | CSS token | SVG hex (light) |
+| ------- | --------- | --------------- |
+| Primary / node fill | `--cl-accent-primary` | `#1a4480` |
+| Accent / focal element | `--cl-accent-secondary` | `#9a6200` |
+| Edge / line color | `--codelens-slate-500` | `#6b7890` |
+| Background surface | `--cl-surface-code` | `#f1f4f9` |
+| Node border | `--cl-accent-primary` | `#1a4480` |
+| Cluster background | `--cl-surface-card` | `#eef2f8` |
+
+Diagram fills in `static/img/*.svg` files should reference the hex values from the design system — see [.agent/DESIGN.md](./DESIGN.md).
 
 ### SVG conventions
 
